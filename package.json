@@ -1,0 +1,16 @@
+{
+  "name": "socialstat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^5.4.10",
+    "oauth": "^0.9.15",
+    "twitter-node-client": "0.0.6"
+  }
+}
