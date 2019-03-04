@@ -13,8 +13,8 @@ const shceduler = require('node-schedule');
 const config = require('./config.json');
 const OAuth = require('oauth');
 var Twitter = require('twitter-node-client').Twitter;
-const port = 3000
-const dotEnv = require('dotenv').config();
+const env = process.env.NODE_ENV || "development";
+const port = env === 'production' ? process.env.PORT : 3000;
 
 var corsOptions = {
     origin: '*',
@@ -51,6 +51,7 @@ shceduler.scheduleJob('0 0 0 * * * *', () => {
     // socialStatsFacebook.getData();
 
 });
+
 http.createServer(app).listen(port, function () {
     console.log('Our project is running! ', (new Date()).toString());
     console.log('running on port is runing on port ', '3000');
