@@ -15,6 +15,7 @@ const OAuth = require('oauth');
 var Twitter = require('twitter-node-client').Twitter;
 const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
+const dotEnv = require('dotenv').config();
 
 var corsOptions = {
     origin: '*',
@@ -53,7 +54,7 @@ shceduler.scheduleJob('0 0 0 * * * *', () => {
 });
 
 http.createServer(app).listen(port, function () {
-    console.log('Our project is running! ', (new Date()).toString());
+    console.log('Our project is running in ' + env + '. ', (new Date()).toString());
     console.log('running on port is runing on port ', '3000');
 }).on('error', function (err) {
     console.error(JSON.stringify(err));
