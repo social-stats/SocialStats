@@ -9,14 +9,14 @@ var fb = new FB.Facebook({
 });
 
 router.get('/', (req, res, next) => {
-  res.send(FB.getLoginUrl({
+  res.send('<a href="' + FB.getLoginUrl({
     client_id: config.facebook.client_id,
     scope: 'email,user_likes',
-    redirect_uri: 'http://pbnj.io'
-  }))
+    redirect_uri: config.instagram.redirect,
+  })+ '">Sign in with instagram</a>')
 });
 
-router.get('/fb/authorize', (req, res, next) => {
+router.get('/authorize', (req, res, next) => {
   res.send(req.query);
 });
 

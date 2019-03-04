@@ -8,6 +8,7 @@ const app = express();
 const cors = require('cors');
 const playgroundRoutes = require('./playground');
 const igPlaygroundRoutes = require('./igplayground');
+const shceduler = require('node-schedule');
 
 const config = require('./config.json');
 const OAuth = require('oauth');
@@ -35,36 +36,21 @@ app.use('/twitter/authorize', playgroundRoutes);
 app.use('/ig/', igPlaygroundRoutes);
 
 app.get('/', (req, res) => {
-    res.send('<h1>WOW!!!!!!!</h1>')
+    res.send('<h1>Test homepage</h1>')
 });
 
-// var twitter = new Twitter(coer = new Twitter(config.twitter);
-// var success = function(data){
-//     console.log("SUCCESS", data)
-// }
-// var oauth_one = function (data) {
-//     process.env.TOKEN = data.token;
-//     process.env.TOKEN_SECRET = data.token_secret;
-//     console.log('process.env.TOKEN', process.env.TOKEN)
-//     console.log('process.env.TOKEN_SECRET', process.env.TOKEN_SECRET)
-// };
+app.get('/tos', (req, res) => {
+    res.send('<h1>Mock TOS page for Facebook</h1>')
+});
 
 
-// twitter.getOAuthRequestToken(oauth_one)
-    // nfig.twitter);
-// var success = function(data){
-//     console.log("SUCCESS", data)
-// }
-// var oauth_one = function (data) {
-//     process.env.TOKEN = data.token;
-//     process.env.TOKEN_SECRET = data.token_secret;
-//     console.log('process.env.TOKEN', process.env.TOKEN)
-//     console.log('process.env.TOKEN_SECRET', process.env.TOKEN_SECRET)
-// };
+shceduler.scheduleJob('0 0 0 * * * *', () => {
+    console.log('test');
+    // socialStatsTwitter.getData();
+    // socialStatsInstagram.getData();
+    // socialStatsFacebook.getData();
 
-
-// twitter.getOAuthRequestToken(oauth_one)
-    
+});
 http.createServer(app).listen(port, function () {
     console.log('Our project is running! ', (new Date()).toString());
     console.log('running on port is runing on port ', '3000');
