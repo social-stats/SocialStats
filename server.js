@@ -10,7 +10,6 @@ const playgroundRoutes = require('./playground');
 const igPlaygroundRoutes = require('./igplayground');
 const shceduler = require('node-schedule');
 
-const config = require('./config.json');
 const OAuth = require('oauth');
 var Twitter = require('twitter-node-client').Twitter;
 const env = process.env.NODE_ENV || "development";
