@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const config = require('./config.json');
 var Twitter = require('twitter-node-client').Twitter;
 var twitter = new Twitter(config.twitter);
 
