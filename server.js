@@ -1,4 +1,4 @@
-
+const TwitterFetcher = require('./twitter_fetcher');
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
@@ -9,12 +9,12 @@ const cors = require('cors');
 const playgroundRoutes = require('./playground');
 const igPlaygroundRoutes = require('./igplayground');
 const shceduler = require('node-schedule');
-
 const OAuth = require('oauth');
 var Twitter = require('twitter-node-client').Twitter;
 const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
+
 
 var corsOptions = {
     origin: '*',
