@@ -6,7 +6,7 @@ const express = require('express');
 const http = require('http')
 const app = express();
 const cors = require('cors');
-const playgroundRoutes = require('./playground');
+const playgroundRoutes = require('./twitter_playground');
 const igPlaygroundRoutes = require('./igplayground');
 const shceduler = require('node-schedule');
 const OAuth = require('oauth');
@@ -32,7 +32,7 @@ app.all('*', function (req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/twitter/authorize', playgroundRoutes);
+app.use('/twitter', playgroundRoutes);
 app.use('/ig/', igPlaygroundRoutes);
 
 app.get('/', (req, res) => {
