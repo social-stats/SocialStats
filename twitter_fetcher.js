@@ -18,13 +18,25 @@ const twitter_config ={
 var twitter = new Twitter(twitter_config);
 
 const TwitterFetcher = {
-
     getRequestToken: function () {
         twitter.getOAuthRequestToken(oauth_one);
     },
     getUserTimeLine: function(){
-        //twitter.getUserTimeline({ screen_name: 'DeskNibbles', count: '10'}, error, success);
-    }
+    //     twitter.getUserTimeline({ screen_name: 'DeskNibbles', count: '10'}, error, success);
+    },
+    getFollowers: () => {
+      twitter.getUserTimeline({
+        screen_name: 'DeskNibbles',
+        count: '2'
+      }, (e) => {
+        console.log('error', e);
+      }, (result) => {
+        var numFollowers = JSON.parse(result)[0].user.followers_count;
+        // console.log('success cb: ', result)
+        // console.log('first elem: ', result[0])
+        console.log(numFollowers)
+      });
+    },
 }
 
 module.exports = TwitterFetcher;

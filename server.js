@@ -6,7 +6,7 @@ const express = require('express');
 const http = require('http')
 const app = express();
 const cors = require('cors');
-const playgroundRoutes = require('./playground');
+const twitterPlaygroundRoutes = require('./twitterPlayground');
 const igPlaygroundRoutes = require('./igplayground');
 const shceduler = require('node-schedule');
 const OAuth = require('oauth');
@@ -43,10 +43,11 @@ app.get('/tos', (req, res) => {
     res.send('<h1>Mock TOS page for Facebook</h1>')
 });
 
+TwitterFetcher.getFollowers();
 
 shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('test');
-    // socialStatsTwitter.getData();
+    // socialStatsTwitter.getData(); //socialStatsTwitter == twitter_fetcher.js
     // socialStatsInstagram.getData();
     // socialStatsFacebook.getData();
 
