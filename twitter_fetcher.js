@@ -14,7 +14,7 @@ const twitter_config ={
     accessTokenSecret : process.env.TWITTER_ACCESS_TOKEN_SECRET,
     callBackUrl : process.env.TWITTER_CALLBACK_URL
 }
-console.log(twitter_config);
+
 var twitter = new Twitter(twitter_config);
 
 const TwitterFetcher = {

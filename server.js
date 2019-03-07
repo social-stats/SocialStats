@@ -32,7 +32,7 @@ app.all('*', function (req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/twitter', playgroundRoutes);
+app.use('/twitter', twitterPlaygroundRoutes);
 app.use('/ig/', igPlaygroundRoutes);
 
 app.get('/', (req, res) => {
