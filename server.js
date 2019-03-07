@@ -46,11 +46,11 @@ app.get('/tos', (req, res) => {
 // TwitterFetcher.getFollowers();
 
 shceduler.scheduleJob('0 0 0 * * * *', () => {
-    console.log('test');
+    console.log('Scheduler is running');
     // socialStatsTwitter.getData(); //socialStatsTwitter == twitter_fetcher.js
     // socialStatsInstagram.getData();
     // socialStatsFacebook.getData();
-
+    console.log('Scheduler ended');
 });
 
 http.createServer(app).listen(port, function () {
