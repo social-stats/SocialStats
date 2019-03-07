@@ -19,11 +19,11 @@ var twitter = new Twitter(twitter_config);
 
 const TwitterFetcher = {
     getRequestToken: function () {
-
+        console.log(twitter_config);
         return new Promise((res) => twitter.getOAuthRequestToken( data => {
             res(data)
-            console.log('TOKEN', data.token)
-            console.log('TOKEN_SECRET', data.token_secret);
+            // console.log('TOKEN', data.token)
+            // console.log('TOKEN_SECRET', data.token_secret);
         }));
     },
     getUserTimeLine: function(){
