@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const dotEnv = require('dotenv').config();
 var FB = require('fb');
+
 var fb = new FB.Facebook({
   appId: process.env.FACEBOOK_APP_ID,
   autoLogAppEvents: true,

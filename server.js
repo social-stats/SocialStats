@@ -15,7 +15,6 @@ const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
 
-
 var corsOptions = {
     origin: '*',
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'token', 'content-type'],
@@ -44,6 +43,11 @@ app.get('/tos', (req, res) => {
 });
 
 // TwitterFetcher.getFollowers();
+// TwitterFetcher.getMentionsTimeLine();
+// TwitterFetcher.getRetweetsOfMe();
+// TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
+// TwitterFetcher.getSearchResults('desk nibbles');
+
 
 shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('Scheduler is running');
