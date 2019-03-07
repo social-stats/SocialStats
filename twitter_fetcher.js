@@ -12,14 +12,19 @@ const twitter_config ={
     consumerSecret  : process.env.TWITTER_CONSUMER_SECRET,
     accessToken : process.env.TWITTER_ACCESS_TOKEN,
     accessTokenSecret : process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    callBackUrl : process.env.CALLBACK_URL
+    callBackUrl : process.env.TWITTER_CALLBACK_URL
 }
-
+console.log(twitter_config);
 var twitter = new Twitter(twitter_config);
 
 const TwitterFetcher = {
     getRequestToken: function () {
-        twitter.getOAuthRequestToken(oauth_one);
+
+        return new Promise((res) => twitter.getOAuthRequestToken( data => {
+            res(data)
+            console.log('TOKEN', data.token)
+            console.log('TOKEN_SECRET', data.token_secret);
+        }));
     },
     getUserTimeLine: function(){
     //     twitter.getUserTimeline({ screen_name: 'DeskNibbles', count: '10'}, error, success);

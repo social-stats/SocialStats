@@ -32,7 +32,7 @@ app.all('*', function (req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/twitter/authorize', playgroundRoutes);
+app.use('/twitter', playgroundRoutes);
 app.use('/ig/', igPlaygroundRoutes);
 
 app.get('/', (req, res) => {
@@ -43,7 +43,7 @@ app.get('/tos', (req, res) => {
     res.send('<h1>Mock TOS page for Facebook</h1>')
 });
 
-TwitterFetcher.getFollowers();
+// TwitterFetcher.getFollowers();
 
 shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('test');
