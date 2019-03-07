@@ -20,8 +20,12 @@ router.get('/callback', (req, res, next) => {
     const oauth_verifier = req.query.oauth_verifier;
 
     axios.post(`https://api.twitter.com/oauth/access_token?oauth_consumer_key=${process.env.TWITTER_CONSUMER_KEY}&oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`, {})
-      .then((response) => {
-        console.log(response.data);
+      .then(function (response) {
+          const res_string = response.data;
+        res.send({
+            oauth_token : res_string.substring(res_string.indexOf('=') + 1,res_string.indexOf('&'))
+        });
+
       })
       .catch((error) => {
         console.log(error);
