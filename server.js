@@ -12,6 +12,7 @@ const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
 
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true })
 const app = express();
 
 var corsOptions = {
