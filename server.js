@@ -4,7 +4,6 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const express = require('express');
 const http = require('http')
-const app = express();
 const cors = require('cors');
 const twitterPlaygroundRoutes = require('./twitter_playground');
 const igPlaygroundRoutes = require('./igplayground');
@@ -13,6 +12,7 @@ const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
 
+const app = express();
 
 var corsOptions = {
     origin: '*',
@@ -22,7 +22,7 @@ var corsOptions = {
 }
 app.use(morgan('dev'));
 app.use(cors(corsOptions));
-app.all('*', function (req, res, next) {
+app.all('*', (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
@@ -42,6 +42,11 @@ app.get('/tos', (req, res) => {
 });
 
 // TwitterFetcher.getFollowers();
+// TwitterFetcher.getMentionsTimeLine();
+// TwitterFetcher.getRetweetsOfMe();
+// TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
+// TwitterFetcher.getSearchResults('desk nibbles');
+
 
 shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('Scheduler is running');
@@ -51,9 +56,9 @@ shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('Scheduler ended');
 });
 
-http.createServer(app).listen(port, function () {
+http.createServer(app).listen(port, () => {
     console.log('Our project is running in ' + env + '. ', (new Date()).toString());
     console.log('running on port is runing on port ', '3000');
-}).on('error', function (err) {
+}).on('error', (err) => {
     console.error(JSON.stringify(err));
 });
