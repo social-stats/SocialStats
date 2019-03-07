@@ -3,10 +3,6 @@
 const dotEnv = require('dotenv').config();
 var Twitter = require('twitter-node-client').Twitter;
 
-var oauth_one = function (data) {
-    console.log('TOKEN', data.token)
-    console.log('TOKEN_SECRET', data.token_secret);
-};
 const twitter_config ={
     consumerKey : process.env.TWITTER_CONSUMER_KEY,
     consumerSecret  : process.env.TWITTER_CONSUMER_SECRET,
@@ -19,11 +15,8 @@ var twitter = new Twitter(twitter_config);
 
 const TwitterFetcher = {
     getRequestToken: function () {
-        console.log(twitter_config);
         return new Promise((res) => twitter.getOAuthRequestToken( data => {
             res(data)
-            // console.log('TOKEN', data.token)
-            // console.log('TOKEN_SECRET', data.token_secret);
         }));
     },
     getUserTimeLine: function(){
