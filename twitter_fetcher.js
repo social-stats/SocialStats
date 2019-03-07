@@ -10,7 +10,7 @@ const twitter_config = {
     consumerSecret  : process.env.TWITTER_CONSUMER_SECRET,
     accessToken : process.env.TWITTER_ACCESS_TOKEN,
     accessTokenSecret : process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    callBackUrl : process.env.CALLBACK_URL
+    callBackUrl : process.env.TWITTER_CALLBACK_URL
 }
 
 var twitter = new Twitter(twitter_config);
