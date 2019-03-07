@@ -8,27 +8,24 @@ const TwitterFetcher = require('./twitter_fetcher');
 // var twitter = new Twitter(config.twitter);
 
 router.get('/token', (req, res, next) => {
-    
+
     TwitterFetcher.getRequestToken().then( data => {
         res.send(`<a href=https://api.twitter.com/oauth/authorize?oauth_token=${data.token}>Sign in with twitter</a>`)
     });
 });
 
 router.get('/callback', (req, res, next) => {
-    
+
     const oauth_token = req.query.oauth_token;
     const oauth_verifier = req.query.oauth_verifier;
-    
+
     axios.post(`https://api.twitter.com/oauth/access_token?oauth_consumer_key=${process.env.TWITTER_CONSUMER_KEY}&oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`, {})
-      .then(function (response) {
-          
-        res.send({
-            token: response.data
-        });
+      .then((response) => {
+        console.log(response.data);
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.log(error);
       });
-  
+
 });
 module.exports = router;
