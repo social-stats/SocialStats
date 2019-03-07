@@ -18,8 +18,18 @@ const twitter_config ={
 var twitter = new Twitter(twitter_config);
 
 const TwitterFetcher = {
+<<<<<<< HEAD
     getRequestToken: () => {
         twitter.getOAuthRequestToken(oauth_one);
+=======
+    getRequestToken: function () {
+        console.log(twitter_config);
+        return new Promise((res) => twitter.getOAuthRequestToken( data => {
+            res(data)
+            // console.log('TOKEN', data.token)
+            // console.log('TOKEN_SECRET', data.token_secret);
+        }));
+>>>>>>> cef2742416e65b780938ab7b263d380ba10dee20
     },
     getUserTimeLine: () => { //aka User Profile
         // twitter.getUserTimeline({ screen_name: 'DeskNibbles', count: '10'}, error, success);
