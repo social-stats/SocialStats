@@ -40,7 +40,8 @@ router.post('/', (req, res, next) => {
                             .save()
                             .then(result => {
                                 res.status(201).json({
-                                    success: 'user created'
+                                    success: 'user created',
+                                    id: user._id
                                 });
                             })
                             .catch(err => {
