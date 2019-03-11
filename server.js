@@ -13,6 +13,7 @@ const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
 const user = require('./api/user');
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true })
+const twitter_helper = require('./twitter_helper');
 const app = express();
 
 var corsOptions = {
@@ -41,14 +42,14 @@ app.get('/', (req, res) => {
 app.get('/tos', (req, res) => {
     res.send('<h1>Mock TOS page for Facebook</h1>')
 });
-
+twitter_helper.initiateTwitterScedhuling();
 // TwitterFetcher.getFollowers();
 // TwitterFetcher.getMentionsTimeLine();
 // TwitterFetcher.getRetweetsOfMe();
 // TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
 // TwitterFetcher.getSearchResults('desk nibbles');
 
-
+//twitter_helper.getListOfClients();
 shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('Scheduler is running');
     // socialStatsTwitter.getData(); //socialStatsTwitter == twitter_fetcher.js

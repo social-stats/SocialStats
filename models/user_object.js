@@ -5,7 +5,9 @@ const userObjectSchema = mongoose.Schema({
     password: { type: mongoose.Schema.Types.String, required: true },
     twitter: { 
         access_token: {type: mongoose.Schema.Types.String, required: false},
-        name: {type: mongoose.Schema.Types.String, required: false}
+        token_secret: {type: mongoose.Schema.Types.String, required: false},
+        name: {type: mongoose.Schema.Types.String, required: false},
+        id: {type: mongoose.Schema.Types.String, required: false}
     },
     fb: {
         access_token: {type: mongoose.Schema.Types.String, required: false},

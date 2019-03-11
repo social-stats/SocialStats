@@ -64,20 +64,15 @@ router.patch('/:uid', (req,res,next) => {
         }
 
         const social = ['twitter', 'fb', 'linkedin', 'instagram'];
-        const tokens = ['access_token', 'name'];
-        request_body_keys.every( key => social.includes(key)
-                                && Object.keys(req.body[key]).every(innerKey => tokens.includes(innerKey)));
-        const tw = {
-            twitter : {
-                name : "SocialStat4",
-                access_token : '1093514095976886273-s7HQWwShY4b7MvPjCrVnvmdwPdSxAK'
-            }
-        }
-
-        UserObject.updateOne({_id : req.params.uid}, {$set : req.body})
+        const tokens = ['access_token', 'name', 'token_secret', 'id'];
+        const valid_request = request_body_keys.every( key => social.includes(key)
+                                && Object.keys(req.body[key])
+                                .every(innerKey => tokens.includes(innerKey)));
+        if (valid_request){
+            UserObject.updateOne({_id : req.params.uid}, {$set : req.body})
             .exec()
             .then(result => {
-                res.status(201).json(result);
+                res.status(201).json(req.body);
             })
             .catch(err => {
                 console.log(err);
@@ -85,7 +80,13 @@ router.patch('/:uid', (req,res,next) => {
                     error : err
                 });
     
-        });
+            });
+        }else{
+            res.status(401).json({
+                error: "invalid requst"
+            })
+        }
+        
         
     }
 });
