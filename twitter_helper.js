@@ -124,22 +124,7 @@ const compareTweets = (current, id) => {
                     }
                 })
                 console.log(updatedTweets, 'UPDATE')
-                // example.forEach(db_tweet => { // updating db tweets
-                //     current.tweets.forEach( tweet => {
-                //         if (tweet.tweetId === db_tweet.tweetId){
-                //             updatedTweets.push({
-                //             _id: db_tweet._id,
-                //             tweet: tweet.favourites,
-                //             retweets: tweet.retweets,
-                //             id: tweet.tweetId,
-                //             date: tweet.date,
-                //             name: tweet.name
-                //             })
-                //         }
-                //     })
-                    
-                // })
-
+     
                 
 
                 return({
