@@ -5,12 +5,12 @@ files:
     destination: /var/www/SocialStats
 permissions:
   - object: /var/www/SocialStats/scripts
-  patterns: "*.sh"
-  owner: root
-  group: root
-  mode: 755
-  type:
-    - file
+    patterns: "*.sh"
+    owner: root
+    group: root
+    mode: 755
+    type:
+      - file
 hooks:
   BeforeInstall:
     - location: scripts/packageInstall.sh
