@@ -37,6 +37,7 @@ const TwitterFetcher =  {
             res(data)
         }));
     },
+  
     getHomeTimeline: (client) =>{
       const twitter_client = new Twitter(client)
       
@@ -60,18 +61,43 @@ const TwitterFetcher =  {
  
         })
       }))},
-    getFollowers: () => {
-      twitter.getUserTimeline({
-        screen_name: 'DeskNibbles',
-        count: 2
-      }, (e) => {
-        console.log('get user TL err', client);
-      }, (result) => {
-        var numFollowers = JSON.parse(result)[0].user.followers_count;
-        // console.log('success cb: ', result)
-        // console.log('first elem: ', result[0])
-        console.log('Followers: ', numFollowers)
-      });
+      getUserTimeline: (name) => {
+        return new Promise( (res)=>{
+        const tweets = []
+
+        twitter.getUserTimeline({
+          screen_name: name,
+          count: 200
+        }, (e) => {
+          console.log('get user TL err', name);
+        }, (result) => {
+          const jsonResult = JSON.parse(result);
+          
+          jsonResult.forEach(tweet_object => {
+            
+            tweets.push({
+              tweet: tweet_object.text,
+              favourites: tweet_object.favorite_count,
+              retweets: tweet_object.retweet_count,
+              tweetId: tweet_object.id_str,
+              date: tweet_object.created_at,
+              name: name
+            })
+          })
+          
+            res({
+              followers: jsonResult[0].user.followers_count,
+              tweets: tweets
+            })
+          
+          }
+          
+            
+          
+          //const numFollowers = JSON.parse(result)[0].user.followers_count;
+          //console.log('Followers: ', numFollowers)
+        
+         ) });
     },
     getMentionsTimeLine: (client) => {
       client.getMentionsTimeline({
@@ -101,14 +127,17 @@ const TwitterFetcher =  {
       })
     },
     getSearchResults: (searchQuery) => {
-      twitter.getSearch({
-        q: searchQuery,
-        count: 10
-      }, (e) => {
-        console.log('search err: ', e)
-      }, (result) => {
-        console.log('Search Results: ', result)
+      return new Promise(res =>{
+        twitter.getSearch({
+          q: searchQuery,
+          count: 200
+        }, (e) => {
+          console.log('search err: ', e)
+        }, (result) => {
+          res(JSON.parse(result))
+        })
       })
+      
     },
 }
 
