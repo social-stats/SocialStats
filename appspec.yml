@@ -1,0 +1,27 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/SocialStats
+permissions:
+  - object: /var/www/SocialStats/scripts
+    patterns: "*.sh"
+    owner: root
+    group: root
+    mode: 755
+    type:
+      - file
+hooks:
+  BeforeInstall:
+    - location: scripts/packageInstall.sh
+      timeout: 300
+  AfterInstall:
+    - location: scripts/build.sh
+      timeout: 300
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 300
+  ApplicationStop:
+    - location: scripts/stop.sh
+      timeout: 300
+
