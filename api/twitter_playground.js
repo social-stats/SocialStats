@@ -1,35 +1,35 @@
-const http = require('http');
+
 const axios = require('axios');
 const express = require('express');
 const router = express.Router();
-var Twitter = require('twitter-node-client').Twitter;
 const dotEnv = require('dotenv').config();
-const TwitterFetcher = require('./twitter_fetcher');
+const TwitterFetcher = require('../twitter_fetcher');
 // var twitter = new Twitter(config.twitter);
 
 router.get('/token', (req, res, next) => {
-
+    
     TwitterFetcher.getRequestToken().then( data => {
         res.send(`<a href=https://api.twitter.com/oauth/authorize?oauth_token=${data.token}>Sign in with twitter</a>`)
     });
 });
 
 router.get('/callback', (req, res, next) => {
-
     const oauth_token = req.query.oauth_token;
     const oauth_verifier = req.query.oauth_verifier;
-
     axios.post(`https://api.twitter.com/oauth/access_token?oauth_consumer_key=${process.env.TWITTER_CONSUMER_KEY}&oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`, {})
       .then(function (response) {
-          const res_string = response.data;
+        const response_list = response.data.split('=');
+        console.log(response_list);
         res.send({
-            oauth_token : res_string.substring(res_string.indexOf('=') + 1,res_string.indexOf('&'))
+            access_token : response_list[1].substring(0, response_list[1].indexOf('&')),
+            token_secret : response_list[2].substring(0, response_list[2].indexOf('&')),
+            id: response_list[3].substring(0,response_list[3].indexOf('&')),
+            name: response_list[4]
         });
-
       })
-      .catch((error) => {
+      .catch(function (error) {
         console.log(error);
       });
-
+  
 });
 module.exports = router;
