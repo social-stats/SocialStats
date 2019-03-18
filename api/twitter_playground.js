@@ -14,7 +14,6 @@ router.get('/token', (req, res, next) => {
 });
 
 router.get('/callback', (req, res, next) => {
-    
     const oauth_token = req.query.oauth_token;
     const oauth_verifier = req.query.oauth_verifier;
     axios.post(`https://api.twitter.com/oauth/access_token?oauth_consumer_key=${process.env.TWITTER_CONSUMER_KEY}&oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`, {})
