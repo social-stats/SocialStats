@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 app.get('/tos', (req, res) => {
     res.send('<h1>Mock TOS page for Facebook</h1>')
 });
-twitter_helper.initiateTwitterScedhuling();
+// twitter_helper.initiateTwitterScedhuling();
 // TwitterFetcher.getFollowers();
 // TwitterFetcher.getMentionsTimeLine();
 // TwitterFetcher.getRetweetsOfMe();
@@ -57,6 +57,8 @@ shceduler.scheduleJob('0 0 0 * * * *', () => {
     // socialStatsFacebook.getData();
     console.log('Scheduler ended');
 });
+
+twitter_helper.runInitialSnapshot('test');
 
 http.createServer(app).listen(port, () => {
     console.log('Our project is running in ' + env + '. ', (new Date()).toString());
