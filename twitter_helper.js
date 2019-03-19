@@ -32,6 +32,10 @@ getTweets = (id) => new Promise((res) => {
     
         
   })
+
+const updateRepliesToTweets = (tweet, name) = {
+    
+}
 const updateReplies = (unfinishedTweets, name) => {
     let newTweets = unfinishedTweets.newTweets
     let updatedTweets = unfinishedTweets.updatedTweets
