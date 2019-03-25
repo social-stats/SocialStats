@@ -49,8 +49,7 @@ app.get('/tos', (req, res) => {
 // TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
 // TwitterFetcher.getSearchResults('desk nibbles');
 
-//twitter_helper.getListOfClients();
-shceduler.scheduleJob('0 0 0 * * * *', () => {
+shceduler.scheduleJob('30 23 * * * *', () => {
     console.log('Scheduler is running');
     // socialStatsTwitter.getData(); //socialStatsTwitter == twitter_fetcher.js
     // socialStatsInstagram.getData();
@@ -58,7 +57,7 @@ shceduler.scheduleJob('0 0 0 * * * *', () => {
     console.log('Scheduler ended');
 });
 
-twitter_helper.initialRun('test');
+twitter_helper.runInitialSnapshot('test');
 
 http.createServer(app).listen(port, () => {
     console.log('Our project is running in ' + env + '. ', (new Date()).toString());
