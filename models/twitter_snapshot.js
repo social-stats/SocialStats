@@ -6,9 +6,10 @@ const twitterSnapshotSchema = mongoose.Schema({
     followers: { type: mongoose.Schema.Types.Number, required: false },
     favorites: { type: mongoose.Schema.Types.Number, required: false },
     posts: { type: mongoose.Schema.Types.Number, required: false },
+    replyPosts: { type: mongoose.Schema.Types.Number, required: false },
     retweets: { type: mongoose.Schema.Types.Number, required: false },
-    replies: { type: mongoose.Schema.Types.Number, required: false },
-    firstTweetId: { type: mongoose.Schema.Types.Number, required: false }
+    mentions: { type: mongoose.Schema.Types.Number, required: false },
+    firstTweetId: { type: mongoose.Schema.Types.String, required: false }
 });
 
 module.exports = mongoose.model("TwitterSnapshot", twitterSnapshotSchema);

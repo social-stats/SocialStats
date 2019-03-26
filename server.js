@@ -12,10 +12,17 @@ const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
 const user = require('./api/user');
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true })
+const test = require('./api/test');
 const twitter_helper = require('./twitter_helper');
 const app = express();
 
+
+//mongo
+mongoose.connect(env === "production" ? process.env.MONGO_URL : process.env.MONGO_DEV_URL, { useNewUrlParser: true })
+
+// ------------------------------
+// EXPRESS SET UP BEGIN
+// ------------------------------
 var corsOptions = {
     origin: '*',
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'token', 'content-type'],
@@ -31,10 +38,24 @@ app.all('*', (req, res, next) => {
 });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+// ------------------------------
+// EXPRESS SET UP END
+// ------------------------------
 
+// ------------------------------
+// EXPRESS ROUTING
+// ------------------------------
 app.use('/twitter', twitterPlaygroundRoutes);
-app.use('/ig/', igPlaygroundRoutes);
+app.use('/ig/', igPlaygroundRoutes); //TODO: delete this later
 app.use('/user', user);
+app.use('/test', test);
+// ------------------------------
+// EXPRESS ROUTING END
+// ------------------------------
+
+// ------------------------------
+// EXPRESS SERVE AND ENDPOINTS
+// ------------------------------
 app.get('/', (req, res) => {
     res.send('<h1><i>ss Test homepage</i></h1>')
 });
@@ -42,6 +63,12 @@ app.get('/', (req, res) => {
 app.get('/tos', (req, res) => {
     res.send('<h1>Mock TOS page for Facebook</h1>')
 });
+// EXPRESS SERVE END
+
+
+// ------------------------------
+// SCHEDULER
+// ------------------------------
 // twitter_helper.initiateTwitterScedhuling();
 // TwitterFetcher.getFollowers();
 // TwitterFetcher.getMentionsTimur fcked loleLine();
@@ -59,9 +86,21 @@ shceduler.scheduleJob('30 23 * * * *', () => {
 
 // twitter_helper.runInitialSnapshot('test');
 
+// ------------------------------
+// SCHEDULER end
+// ------------------------------
+
+
+
+// ------------------------------
+// CREATE HTTP SERVER
+// ------------------------------
 http.createServer(app).listen(port, () => {
     console.log('Our project is running in ' + env + '. ', (new Date()).toString());
-    console.log('running on port is runing on port ', '3000');
+    console.log('running on port is runing on port ', port);
 }).on('error', (err) => {
     console.error(JSON.stringify(err));
 });
+// ------------------------------
+// CREATE HTTP SERVER END
+// ------------------------------
