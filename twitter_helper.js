@@ -311,11 +311,9 @@ const TwitterScedhuler = {
                         firstTweetId: snapshots[date].firstTweetId
                     })
                     return newTwitterSnapshot.save();
-                }
                 })
-
-    })
-}
+            })
+    }
 }
 
 module.exports = TwitterScedhuler;

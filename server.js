@@ -44,7 +44,7 @@ app.get('/tos', (req, res) => {
 });
 // twitter_helper.initiateTwitterScedhuling();
 // TwitterFetcher.getFollowers();
-// TwitterFetcher.getMentionsTimeLine();
+// TwitterFetcher.getMentionsTimur fcked loleLine();
 // TwitterFetcher.getRetweetsOfMe();
 // TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
 // TwitterFetcher.getSearchResults('desk nibbles');
@@ -57,7 +57,7 @@ shceduler.scheduleJob('30 23 * * * *', () => {
     console.log('Scheduler ended');
 });
 
-twitter_helper.runInitialSnapshot('test');
+// twitter_helper.runInitialSnapshot('test');
 
 http.createServer(app).listen(port, () => {
     console.log('Our project is running in ' + env + '. ', (new Date()).toString());
