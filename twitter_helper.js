@@ -33,6 +33,28 @@ const TwitterHelper = {
         )
     }
 }
+const updateTopEntries = (list, newEntry, param) => {
+    if (list.length == 3){
+        listValues = list.map(val => val[param])
+        let minValue = Math.min(...listValues);
+        if (newEntry[param] > minValue){
+            list[listValues.indexOf(minValue)] = {
+                favorites: newEntry['favorities'],
+                retweets: newEntry['retweets'],
+                text: newEntry['tweet']
+            }
+        }
+    }
+    else if(list.length <3){
+        list.push({
+            favorites: newEntry['favorites'],
+            retweets: newEntry['retweets'],
+            text: newEntry['tweet']
+        })
+    }
+
+    return list
+}
 
 getTweets = (id) => new Promise((res) => {
 
@@ -364,7 +386,35 @@ const TwitterScedhuler = {
                     return newTwitterSnapshot.save();
                 })
             })
-    }
+    },
+    createInitialWeeklySnapshots: (userId,handle) =>{
+
+        TwitterFetcher.getUserTimeline('DeskNibbles')
+            .then(tl => {
+
+                var weekMap = {}
+                tl.tweets.forEach(t =>{
+
+                    var key = moment(t.date).startOf('week').toDate();
+                    // if key in map, 
+                    var weekObject = weekMap[key] || {
+                        topThreeFavorites : [],
+                        topThreeRetweets : [],
+                        mostRepliedToTweets : []
+                    }
+
+                    weekMap[key] = {
+                        ...weekObject,
+                        topThreeFavorites : updateTopEntries(weekObject.topThreeFavorites, t, 'favourites'),
+                        topThreeRetweets: updateTopEntries(weekObject.topThreeRetweets, t, 'retweets')
+
+                    }
+
+                
+                })
+                Object.keys(weekMap).forEach(k => console.log(k, weekMap[k]))
+            })
+        }
 }
 
 module.exports = TwitterScedhuler;
