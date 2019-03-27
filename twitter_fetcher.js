@@ -53,7 +53,7 @@ const TwitterFetcher = {
         JSON.parse(result).map(twitter_object => {
           res({
             tweet: twitter_object.text,
-            favourites: twitter_object.favorite_count,
+            favorites: twitter_object.favorite_count,
             retweets: twitter_object.retweet_count,
             id: twitter_object.id,
             date: twitter_object.created_at.toString()
@@ -63,52 +63,72 @@ const TwitterFetcher = {
       }))
   },
   getUserTimeline: (name, params) => {
+
+    params = params || {};
+
     return new Promise((res) => {
       const tweets = []
 
       twitter.getUserTimeline({
-        ...params,
         screen_name: name,
-        count: 200
+        count: 2000
       }, (e) => {
         console.log('get user TL err', name);
       }, (result) => {
         const jsonResult = JSON.parse(result);
 
         jsonResult.forEach(tweet_object => {
+          if (params.since_id) {
+            if (params.since_id <= tweet_object.id)
 
-          tweets.push({
-            tw_user: tweet_object.user,
-            tweet: tweet_object.text,
-            favourites: tweet_object.favorite_count,
-            retweets: tweet_object.retweet_count,
-            tweetId: tweet_object.id_str,
-            date: tweet_object.created_at,
-            name: name
-          })
+              tweets.push({
+                tw_user: tweet_object.user,
+                tweet: tweet_object.text,
+                favorites: tweet_object.favorite_count,
+                retweets: tweet_object.retweet_count,
+                tweetId: tweet_object.id_str,
+                date: tweet_object.created_at,
+                name: name,
+                isReply: tweet_object.in_reply_to_status_id !== null
+              })
+
+          } else {
+
+            tweets.push({
+              tw_user: tweet_object.user,
+              tweet: tweet_object.text,
+              favorites: tweet_object.favorite_count,
+              retweets: tweet_object.retweet_count,
+              tweetId: tweet_object.id_str,
+              date: tweet_object.created_at,
+              name: name,
+              isReply: tweet_object.in_reply_to_status_id !== null
+            })
+
+          }
         })
 
-        res({
-          followers: jsonResult[0].user.followers_count,
-          tweets: tweets
-        })
+      res({
+        followers: jsonResult[0].user.followers_count,
+        tweets: tweets
+      })
 
-      }
-        //const numFollowers = JSON.parse(result)[0].user.followers_count;
-        //console.log('Followers: ', numFollowers)
+    }
+      //const numFollowers = JSON.parse(result)[0].user.followers_count;
+      //console.log('Followers: ', numFollowers)
 
-      )
-    });
+    )
+  });
   },
-  getMentionsTimeLine: (client) => {
-    client.getMentionsTimeline({
-      count: 10
-    }, (e) => {
-      console.log('get mentions TL err', e)
-    }, (result) => {
-      console.log('Mentions: ', result)
-    });
-  },
+getMentionsTimeLine: (client) => {
+  client.getMentionsTimeline({
+    count: 10
+  }, (e) => {
+    console.log('get mentions TL err', e)
+  }, (result) => {
+    console.log('Mentions: ', result)
+  });
+},
   getRetweetsOfMe: () => {
     twitter.getReTweetsOfMe({
       include_user_entities: true
@@ -118,28 +138,28 @@ const TwitterFetcher = {
       console.log('Tweets that have been retweeted: ', result)
     })
   },
-  getTrendsNearMe: (woeid) => {
-    twitter.getCustomApiCall('/trends/place.json', {
-      id: woeid
-    }, (e) => {
-      console.log('get trends near me err: ', e)
-    }, (result) => {
-      console.log('get trends near me: ', result)
-    })
-  },
-  getSearchResults: (searchQuery) => {
-    return new Promise(res => {
-      twitter.getSearch({
-        q: searchQuery,
-        count: 200
+    getTrendsNearMe: (woeid) => {
+      twitter.getCustomApiCall('/trends/place.json', {
+        id: woeid
       }, (e) => {
-        console.log('search err: ', e)
+        console.log('get trends near me err: ', e)
       }, (result) => {
-        res(JSON.parse(result))
+        console.log('get trends near me: ', result)
       })
-    })
+    },
+      getSearchResults: (searchQuery) => {
+        return new Promise(res => {
+          twitter.getSearch({
+            q: searchQuery,
+            count: 200
+          }, (e) => {
+            console.log('search err: ', e)
+          }, (result) => {
+            res(JSON.parse(result))
+          })
+        })
 
-  },
+      },
 }
 
 module.exports = TwitterFetcher;

@@ -6,7 +6,7 @@ const moment = require('moment')
 const mongoose = require('mongoose');
 const User = require('./models/user_object');
 const Tweet = require('./models/tweet');
-const TiwtterSnapshot = require('./models/twitter_snapshot')
+const TwitterSnapshot = require('./models/twitter_snapshot')
 
 
 const TwitterHelper = {
@@ -84,7 +84,7 @@ const saveTweets = (allTweets) => {
     let mongooseTweets = newTweets.map(tweet => new Tweet({
         _id: new mongoose.Types.ObjectId(),
         user: tweet.user,
-        favourites: tweet.favourites,
+        favorites: tweet.favorites,
         retweets: tweet.retweets,
         tweetId: tweet.tweetId,
         date: tweet.date
@@ -121,7 +121,7 @@ const compareTweets = (current, id) => {
                     if (tweetFound) {
                         updatedTweets.push({
                             _id: db_tweet._id,
-                            tweet: tweetFound.favourites,
+                            tweet: tweetFound.favorites,
                             retweets: tweetFound.retweets,
                             tweetId: tweetFound.tweetId,
                             date: tweetFound.date,
@@ -153,7 +153,7 @@ const compareTweets = (current, id) => {
                 // let mongooseTweets = newTweets.map(tweet => new Tweet({
                 //     _id: new mongoose.Types.ObjectId(),
                 //     user: id,
-                //     favourites: tweet.favourites,
+                //     favorites: tweet.favorites,
                 //     retweets: tweet.retweets,
                 //     tweetId: tweet.tweetId,
                 //     date: tweet.date
@@ -198,76 +198,171 @@ const TwitterScedhuler = {
     },
     runSnapshot: () => {
 
-        var recentSnapshotsPromise = new Promise((resolve, reject) => {
-            TwitterHelper.getListOfClients()
-                .then(results =>
-                    results.forEach(tc => {
-                        TiwtterSnapshot.find({
-                            date: { $gt: moment().startOf('date').subtract(7, 'days') }
+        var savingPromises = []
+
+        return TwitterHelper.getListOfClients()
+            .then(results =>
+                results.forEach(tc => {
+                    TwitterSnapshot.find({
+                        user: tc.userId,
+                        date: { $gte: moment().startOf('date').subtract(7, 'days') }
+                    }).sort({ date: 1 })//sorted ASC
+                        .exec((err, mongoSnapshots) => {
+
+                            if (err || mongoSnapshots.length === 0) { console.error('error while fetching snapshots for user', tc, err); return };
+                            // tweet_id of the earliest tweet of the week
+                            var since_id = mongoSnapshots[0].firstTweetId
+                            var updatedSnapshots = {};
+                            TwitterFetcher.getUserTimeline(tc.name, { since_id: parseInt(since_id) })
+                                .then(tl => { //tweet list
+                                    const tweetMap = new Map(tl.tweets.map(tweet => [tweet.tweetId, moment(tweet.date).startOf('day').toDate().toString()]));
+                                    tl.tweets.forEach(t => {
+
+                                        var key = moment(t.date).startOf('day').toDate().toString()
+                                        var prevObj = updatedSnapshots[key] || {
+                                            favorites: 0,
+                                            retweets: 0,
+                                            posts: 0,
+                                            replyPosts: 0,
+                                            mentions: 0,
+                                            firstTweetUnix: moment().add(1, 'days').unix(),
+                                            firstTweetId: -1
+                                        };
+                                        updatedSnapshots[key] = {
+                                            ...prevObj,
+                                            favorites: prevObj.favorites + t.favorites,
+                                            // posts: prevObj.posts + 1,
+                                            retweets: prevObj.retweets + t.retweets,
+                                            firstTweetUnix: prevObj.firstTweetUnix < moment(t.date).unix() ? prevObj.firstTweetUnix : moment(t.date).unix(),
+                                            firstTweetId: prevObj.firstTweetUnix < moment(t.date).unix() ? prevObj.firstTweet : t.tweetId
+                                        }
+
+                                        if (t.isReply) updatedSnapshots[key].replyPosts = prevObj.replyPosts + 1;
+                                        else updatedSnapshots[key].posts = prevObj.posts + 1;
+
+                                        // IMPORTANT: only update the object's followers if it is the current day.
+                                        if (key === moment().startOf('day').toDate().toString())
+                                            updatedSnapshots[key].followers = t.tw_user.followers_count;
+                                    })
+
+                                    TwitterFetcher.getSearchResults(`@${tc.name}`)
+                                        .then(results => {
+
+                                            console.log('results.statuses', results.statuses.length);
+
+                                            results.statuses.forEach(t => {
+                                                if (t.text.toUpperCase().includes(`@${tc.name.toUpperCase()}`)) {
+                                                    var key = moment(t.created_at).startOf('day').toDate().toString()
+
+                                                    console.log(key)
+
+                                                    var prevObj = updatedSnapshots[key] || {
+                                                        favorites: 0,
+                                                        retweets: 0,
+                                                        posts: 0,
+                                                        replyPosts: 0,
+                                                        mentions: 0,
+                                                        firstTweetUnix: moment().add(1, 'days').unix(),
+                                                        firstTweetId: ''
+                                                    }
+                                                    updatedSnapshots[key] = {
+                                                        ...prevObj,
+                                                        mentions: prevObj.mentions + 1,
+                                                    };
+
+                                                }
+                                                else {
+                                                    console.log(t.text)
+                                                }
+                                            })
+                                        }).then(() => {
+                                            // for every updated snapshot that belongs to user tc.userId,
+                                            // we are going to find the corresponding TwitterSnapshot object from the array (mongo)
+                                            Object.keys(updatedSnapshots).forEach(date => {
+
+                                                var updatedSnapshot = updatedSnapshots[date]
+
+                                                //delete the firstTweetUnix value from the object... this is no longer needed.
+                                                delete updatedSnapshot.firstTweetUnix
+
+                                                var correspondingSnapshot = mongoSnapshots.filter(ms => {
+                                                    return ((moment(ms.date).toDate().toString() === date) && (ms.user.toString() === tc.userId.toString()))
+                                                })[0] || null;
+
+                                                if (!correspondingSnapshot) return;
+
+                                                savingPromises.push(new Promise((resolve, reject) => {
+                                                    TwitterSnapshot.findOneAndUpdate(
+                                                        //filter :
+                                                        { _id: correspondingSnapshot._id },
+                                                        //find one with the filter and update the fields:
+                                                        updatedSnapshot,
+                                                        { upsert: true, setDefaultsOnInsert: true }
+                                                    ).exec((err, res) => {
+                                                        if (err) { console.log('Saving snapshot error', err, 'User: ', tc); reject(err) }
+                                                        resolve(res);
+                                                        return;
+                                                    })
+                                                }))
+                                            })
+                                        })
+
+                                })
                         })
-                            .sort({ date: -1 })//sorted ASC
-                            .exec((err, snapshots) => {
-                                if (err) reject(err);
-                                snapshots[0].date // earliest date within a week, some days may be skipped
-
-                            })
-                    })
-                )
-        })
-
-        recentSnapshotsPromise.then(snapshots => {
-            // tweet_id of the earliest tweet of the week
-            var since_id = snapshots[0].firstTweetId
-
-            TwitterFetcher.getUserTimeline(tc.name, { since_id: since_id})
-                .then(tl => { //tweet list
-                    tl.tweets.forEach(t => {
-                        var key = moment(t.date).startOf('day').toDate().toString()
-                        var prevObj = obj[key] || {
-                            user: userId,
-                            retweets: 0,
-                            posts: 0,
-                            firstTweetUnix: moment().add(1, 'days').unix(),
-                            firstTweetId: -1
-                        };
-                        obj[key] = {
-                            ...prevObj,
-                            posts: prevObj.posts + 1,
-                            retweets: prevObj.retweets + t.retweets,
-                            firstTweetUnix: prevObj.firstTweetUnix < moment(t.date).unix() ? prevObj.firstTweetUnix : moment(t.date).unix(),
-                            firstTweetId: prevObj.firstTweetUnix < moment(t.date).unix() ? prevObj.firstTweet : t.tweetId
-                        }
-
-                    })
                 })
-        }).catch(err => {
-            console.error('Yikes, an error has occurred: ', err)
-        })
+            ).then(() => {
+                return Promise.all(savingPromises)
+                    .then(saveResult => {
+                        return saveResult
+                    })
+                    .catch(e => {
+                        return e
+                    })
+            })
     },
-    runInitialSnapshot: (userId) => {
-        TwitterFetcher.getUserTimeline('desknibbles')
+    // runIntialSnapshot is a promise
+    runInitialSnapshot: (userId, twitterHandle) => {
+        twitterHandle = twitterHandle || 'desknibbles'
+        return TwitterFetcher.getUserTimeline(twitterHandle)
             .then(tl => {
-                var obj = {};
+                var snapshots = {};
                 tl.tweets.forEach(t => {
                     var key = moment(t.date).startOf('day').toDate().toString()
-                    var prevObj = obj[key] || {
-                        user: userId,
-                        favourites: 0,
+
+                    var prevObj = snapshots[key] || {
+                        favorites: 0,
                         retweets: 0,
                         posts: 0,
+                        replyPosts: 0,
                         firstTweetUnix: moment().add(1, 'days').unix(),
-                        firstTweetId: -1
+                        firstTweetId: -1 - 1
                     };
-                    obj[key] = {
+                    snapshots[key] = {
                         ...prevObj,
-                        favourites: prevObj.favourites + t.favourites,
-                        posts: prevObj.posts + 1,
+                        favorites: prevObj.favorites + t.favorites,
                         retweets: prevObj.retweets + t.retweets,
                         firstTweetUnix: prevObj.firstTweetUnix < moment(t.date).unix() ? prevObj.firstTweetUnix : moment(t.date).unix(),
                         firstTweetId: prevObj.firstTweetUnix < moment(t.date).unix() ? prevObj.firstTweet : t.tweetId
                     }
+
+                    if (t.isReply) snapshots[key].replyPosts = prevObj.replyPosts + 1;
+                    else snapshots[key].posts = prevObj.posts + 1;
                 })
 
+                Object.keys(snapshots).forEach(date => {
+                    //the keys of all the snapshots are dates
+                    const newTwitterSnapshot = new TwitterSnapshot({
+                        _id: new mongoose.Types.ObjectId(),
+                        date: date,
+                        user: userId,
+                        favorites: snapshots[date].favorites,
+                        posts: snapshots[date].posts,
+                        replyPosts: snapshots[date].replyPosts,
+                        retweets: snapshots[date].retweets,
+                        firstTweetId: snapshots[date].firstTweetId
+                    })
+                    return newTwitterSnapshot.save();
+                })
             })
     }
 }

@@ -20,6 +20,7 @@ router.get('/callback', (req, res, next) => {
       .then(function (response) {
         const response_list = response.data.split('=');
         console.log(response_list);
+
         res.send({
             access_token : response_list[1].substring(0, response_list[1].indexOf('&')),
             token_secret : response_list[2].substring(0, response_list[2].indexOf('&')),
