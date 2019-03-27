@@ -41,7 +41,8 @@ const updateTopEntries = (list, newEntry, param) => {
             list[listValues.indexOf(minValue)] = {
                 favorites: newEntry['favorities'],
                 retweets: newEntry['retweets'],
-                text: newEntry['tweet']
+                text: newEntry['tweet'],
+                tweetId: newEntry['tweetId']
             }
         }
     }
@@ -49,7 +50,8 @@ const updateTopEntries = (list, newEntry, param) => {
         list.push({
             favorites: newEntry['favorites'],
             retweets: newEntry['retweets'],
-            text: newEntry['tweet']
+            text: newEntry['tweet'],
+            tweetId: newEntry['tweetId']
         })
     }
 
@@ -388,31 +390,76 @@ const TwitterScedhuler = {
             })
     },
     createInitialWeeklySnapshots: (userId,handle) =>{
-
+        
         TwitterFetcher.getUserTimeline('DeskNibbles')
             .then(tl => {
-
                 var weekMap = {}
-                tl.tweets.forEach(t =>{
+                const tweetMap = new Map(tl.tweets.map(tweet => [tweet.tweetId, moment(tweet.date).startOf('week').toDate().toString()]));
+                //const replyMap = Map(tl.tweets.map(tweet => [tweet.tweetId, 0]));
+                // TwitterFetcher.getSearchResults('@DeskNibbles')
+                //     .then(results =>{
+                //         results.statuses.forEach(status => {
+                //             if (status['in_reply_to_status_id_str']){
+                //                 var key = replyMap.get(status['in_reply_to_status_id_str'])
+                //                 if (key){
+                //                     replyMap.get(status['in_reply_to_status_id_str'])++
+                //                 }
+                //             }
+                //         })
 
+
+
+
+
+
+
+
+
+                //     })
+
+                
+                tl.tweets.forEach(t =>{
+                    //t['replies'] = replyMap.get(t.tweetId)
                     var key = moment(t.date).startOf('week').toDate();
                     // if key in map, 
                     var weekObject = weekMap[key] || {
                         topThreeFavorites : [],
                         topThreeRetweets : [],
-                        mostRepliedToTweets : []
+                        topThreeRepliedToTweets : []
                     }
 
                     weekMap[key] = {
                         ...weekObject,
                         topThreeFavorites : updateTopEntries(weekObject.topThreeFavorites, t, 'favourites'),
                         topThreeRetweets: updateTopEntries(weekObject.topThreeRetweets, t, 'retweets')
-
                     }
-
+                    
                 
                 })
-                Object.keys(weekMap).forEach(k => console.log(k, weekMap[k]))
+
+                
+
+
+                Object.keys(weekMap).forEach(k => {
+                    Object.keys(weekMap[k]).forEach(param =>{
+                        weekMap[k][param] = weekMap[k][param]
+                            .map(tweet => new Tweet({
+                                _id: new mongoose.Types.ObjectId(),
+                                tweetId: mongoose.Schema.Types.String,
+                                name: handle,
+                                user:{userId},
+                                date: k,
+                                favorites: tweet.favorites,
+                                replies: tweet.replies,
+                                retweets: tweet.retweets,
+                            }))
+                    })
+                    
+                })
+
+                Object.keys(weekMap).forEach(k => {
+                    console.log(weekMap[k])
+                })
             })
         }
 }
