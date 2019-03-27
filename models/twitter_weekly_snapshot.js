@@ -4,9 +4,9 @@ const twitterWeeklySnapshotSchema = mongoose.Schema({
     date: { type: mongoose.Schema.Types.Date, required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     firstTweetId: { type: mongoose.Schema.Types.Number, required: false },
-    topThreeLiked: {type: mongoose.Schema.Types.Array, ref: 'Tweet', required: false},
-    topThreeRetweeted: {type: mongoose.Schema.Types.Array, red: 'Tweet', required: false},
-    topThreeReplied: {type: mongoose.Schema.Types.Array, red: 'Tweet', required: false}
+    topThreeLiked: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tweet', required: false}],
+    topThreeRetweeted: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tweet', required: false}],
+    topThreeReplied: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tweet', required: false}]
 });
 
 module.exports = mongoose.model("WeeklySnapshot", twitterWeeklySnapshotSchema);
