@@ -3,6 +3,7 @@ const tweetSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     tweetId: mongoose.Schema.Types.String,
     name: mongoose.Schema.Types.String,
+    text: mongoose.Schema.Types.String,
     user:{type : mongoose.Schema.Types.ObjectId, ref : 'User', required : true},
     date: {type: mongoose.Schema.Types.Date, required: true},
     favorites: {type: mongoose.Schema.Types.Number, required: false},

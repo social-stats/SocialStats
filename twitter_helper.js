@@ -445,20 +445,23 @@ const TwitterScedhuler = {
                         weekMap[k][param] = weekMap[k][param]
                             .map(tweet => new Tweet({
                                 _id: new mongoose.Types.ObjectId(),
-                                tweetId: mongoose.Schema.Types.String,
+                                tweetId: tweet.tweetId,
                                 name: handle,
-                                user:{userId},
                                 date: k,
                                 favorites: tweet.favorites,
                                 replies: tweet.replies,
                                 retweets: tweet.retweets,
+                                text: tweet.text
                             }))
                     })
                     
                 })
-
+                var promiseList = []
                 Object.keys(weekMap).forEach(k => {
-                    console.log(weekMap[k])
+                    Object.keys(weekMap[k]).forEach(param =>{
+                        //weekMap[k][param].save()
+                    })
+                    
                 })
             })
         }
