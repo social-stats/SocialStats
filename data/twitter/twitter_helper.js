@@ -4,9 +4,9 @@ const _ = require('lodash')
 const moment = require('moment')
 
 const mongoose = require('mongoose');
-const User = require('./models/user_object');
-const Tweet = require('./models/tweet');
-const TwitterSnapshot = require('./models/twitter_snapshot')
+const User = require('../../models/user');
+const Tweet = require('../../models/tweet');
+const TwitterSnapshot = require('../../models/twitter_snapshot')
 
 
 const TwitterHelper = {
@@ -24,8 +24,8 @@ const TwitterHelper = {
                             id: client.twitter.id,
                             consumerKey: process.env.TWITTER_CONSUMER_KEY,
                             consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-                            accessToken: client.twitter.access_token,
-                            accessTokenSecret: client.twitter.token_secret,
+                            accessToken: client.twitter.accessToken,
+                            accessTokenSecret: client.twitter.tokenSecret,
                             callBackUrl: process.env.TWITTER_CALLBACK_URL
                         }))
                     return twitter_objects;
@@ -54,14 +54,9 @@ const updateTopEntries = (list, newEntry, param) => {
             tweetId: newEntry['tweetId']
         })
     }
-
     return list
 }
 
-getTweets = (id) => new Promise((res) => {
-
-
-})
 const updateReplies = (unfinishedTweets, name) => {
     let newTweets = unfinishedTweets.newTweets
     let updatedTweets = unfinishedTweets.updatedTweets
@@ -138,8 +133,6 @@ const compareTweets = (current, id) => {
 
                 })
 
-                console.log(newTweets, 'THAT NEWNEW')
-
                 results.forEach(db_tweet => {
                     tweetFound = currentTweetsMap.get(db_tweet.tweetId)
                     if (tweetFound) {
@@ -153,36 +146,11 @@ const compareTweets = (current, id) => {
                         })
                     }
                 })
-                console.log(updatedTweets, 'UPDATE')
-
-
 
                 return ({
                     newTweets: newTweets,
                     updatedTweets: updatedTweets
                 })
-
-                console.log(updatedTweets, "AIYAA")
-                // let commonTweets = _.intersectionBy(results, current.tweets, 'tweetId') //find common tweets and update their values
-                // current.tweets.forEach(newTweet => {
-                //     if(example.find(ex => {
-                //         ex.tweetId == newTweet.tweetId
-                //     })){
-                //         console.log("helloTHERE")
-                //     }
-                // })
-
-                // results.map(db_tweet => db_tweet.)
-
-                // let mongooseTweets = newTweets.map(tweet => new Tweet({
-                //     _id: new mongoose.Types.ObjectId(),
-                //     user: id,
-                //     favorites: tweet.favorites,
-                //     retweets: tweet.retweets,
-                //     tweetId: tweet.tweetId,
-                //     date: tweet.date
-                // }))
-                // console.log(mongooseTweets, "HERE")
             })
     )
 }

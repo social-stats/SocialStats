@@ -5,15 +5,14 @@ const morgan = require('morgan')
 const express = require('express');
 const http = require('http')
 const cors = require('cors');
-const twitterPlaygroundRoutes = require('./api/twitter_playground');
-const igPlaygroundRoutes = require('./igplayground');
 const shceduler = require('node-schedule');
 const env = process.env.NODE_ENV || "development";
 const port = env === 'production' ? process.env.PORT : 3000;
 const dotEnv = require('dotenv').config();
 const user = require('./api/user');
 const test = require('./api/test');
-const twitter_helper = require('./twitter_helper');
+const twitterEndpoints = require('./api/twitter_endpoints');
+const TwitterHelper = require('./data/twitter/twitter_helper');
 const app = express();
 
 
@@ -45,10 +44,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // ------------------------------
 // EXPRESS ROUTING
 // ------------------------------
-app.use('/twitter', twitterPlaygroundRoutes);
-app.use('/ig/', igPlaygroundRoutes); //TODO: delete this later
+app.use('/twitter', twitterEndpoints);
 app.use('/user', user);
-app.use('/test', test);
+if (env === 'development')
+    app.use('/test', test);
 // ------------------------------
 // EXPRESS ROUTING END
 // ------------------------------
@@ -69,29 +68,20 @@ app.get('/tos', (req, res) => {
 // ------------------------------
 // SCHEDULER
 // ------------------------------
-// twitter_helper.initiateTwitterScedhuling();
-// TwitterFetcher.getFollowers();
-// TwitterFetcher.getMentionsTimur fcked loleLine();
-// TwitterFetcher.getRetweetsOfMe();
-// TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
-// TwitterFetcher.getSearchResults('desk nibbles');
-
 shceduler.scheduleJob('30 23 * * * *', () => {
     console.log('Scheduler is running');
-    // socialStatsTwitter.getData(); //socialStatsTwitter == twitter_fetcher.js
-    // socialStatsInstagram.getData();
-    // socialStatsFacebook.getData();
-    console.log('Scheduler ended');
-});
 
-// twitter_helper.runInitialSnapshot('test');
+    Promise.all([TwitterHelper.runSnapshot()]).then(() => {
+        console.log('Snapshot gathering complete');
+    }).catch(e => {
+        console.log('Error while gathering snapshot', e)
+    })
+});
 
 // ------------------------------
 // SCHEDULER end
 // ------------------------------
 
-
-twitter_helper.createInitialWeeklySnapshots('t','t');
 // ------------------------------
 // CREATE HTTP SERVER
 // ------------------------------
