@@ -442,8 +442,10 @@ const TwitterScedhuler = {
 
                 Object.keys(weekMap).forEach(k => {
                     Object.keys(weekMap[k]).forEach(param =>{
-                        weekMap[k][param] = weekMap[k][param]
-                            .map(tweet => new Tweet({
+                        
+                        weekMap[k][param]
+                            .forEach(tweet =>{
+                                weekMap[k][param] = new Tweet ({
                                 _id: new mongoose.Types.ObjectId(),
                                 tweetId: tweet.tweetId,
                                 name: handle,
@@ -452,17 +454,32 @@ const TwitterScedhuler = {
                                 replies: tweet.replies,
                                 retweets: tweet.retweets,
                                 text: tweet.text
-                            }))
+                                })
+                            })
+
+                            // .map(tweet => new Tweet({
+                            //     _id: new mongoose.Types.ObjectId(),
+                            //     tweetId: tweet.tweetId,
+                            //     name: handle,
+                            //     date: k,
+                            //     favorites: tweet.favorites,
+                            //     replies: tweet.replies,
+                            //     retweets: tweet.retweets,
+                            //     text: tweet.text
+                            // }))
                     })
                     
                 })
                 var promiseList = []
                 Object.keys(weekMap).forEach(k => {
                     Object.keys(weekMap[k]).forEach(param =>{
-                        //weekMap[k][param].save()
+                        if(weekMap[k][param]._id){
+                            promiseList.push(weekMap[k][param].save())
+                        }
                     })
                     
                 })
+                Promise.all(promiseList).then(res => console.log(res))
             })
         }
 }
