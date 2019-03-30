@@ -89,7 +89,7 @@ const TwitterFetcher = {
                 tweetId: tweet_object.id_str,
                 date: tweet_object.created_at,
                 name: name,
-                isReply: tweet_object.in_reply_to_status_id !== null.Authorization,
+                isReply: tweet_object.in_reply_to_status_id !== null,
                 replies: 0
               })
 
@@ -105,7 +105,6 @@ const TwitterFetcher = {
               name: name,
               isReply: tweet_object.in_reply_to_status_id !== null
             })
-
           }
         })
 
