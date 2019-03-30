@@ -33,169 +33,68 @@ const TwitterHelper = {
         )
     }
 }
+ const attatchRepliesToTweets =(timeLineTweets,name) => {
+    //console.log(timeLineTweets)
+    const tweetMap = new Map(timeLineTweets.tweets.map(tweet => [tweet.tweetId, tweet]));  
+    return new Promise(res => {
+        TwitterFetcher.getSearchResults(`@${name}`)
+            .then(result => {
+                result.statuses.forEach((status,index,refArray) => {
+                    if (status['in_reply_to_status_id_str']){
+                        
+                        if(tweetMap.get(status['in_reply_to_status_id_str'].toString())){
+                            var numReplies = tweetMap.get(status['in_reply_to_status_id_str'].toString()).replies++ 
+                            tweetMap.set(status['in_reply_to_status_id_str'].toString(), {
+                                ...tweetMap.get(status['in_reply_to_status_id_str'].toString()),
+                                replies: numReplies
+                            })
+                        }
+                    }
+                })
+
+                res(Array.from(tweetMap.values()))
+            })
+    })
+    
+}
 const updateTopEntries = (list, newEntry, param) => {
+
     if (list.length == 3){
+        if(param == 'retweets') console.log(newEntry['retweets'])
         listValues = list.map(val => val[param])
-        let minValue = Math.min(...listValues);
+        let minValue = Math.min(...listValues) || 0;
         if (newEntry[param] > minValue){
             list[listValues.indexOf(minValue)] = {
-                favorites: newEntry['favorities'],
+                favorites: newEntry['favorites'],
                 retweets: newEntry['retweets'],
+                replies: newEntry['replies'],
                 text: newEntry['tweet'],
                 tweetId: newEntry['tweetId']
             }
         }
     }
     else if(list.length <3){
-        list.push({
-            favorites: newEntry['favorites'],
-            retweets: newEntry['retweets'],
-            text: newEntry['tweet'],
-            tweetId: newEntry['tweetId']
-        })
+        if(newEntry[param] > 0){
+            
+            list.push({
+                favorites: newEntry['favorites'],
+                retweets: newEntry['retweets'],
+                text: newEntry['tweet'],
+                tweetId: newEntry['tweetId'],
+                replies: newEntry['replies'] 
+            })
+        }
+        
+        
     }
 
     return list
 }
 
-const updateReplies = (unfinishedTweets, name) => {
-    let newTweets = unfinishedTweets.newTweets
-    let updatedTweets = unfinishedTweets.updatedTweets
 
-    let searchResultMap = new Map();
-    return (
-
-
-        TwitterFetcher.getSearchResults(`@${name}`)
-            .then(res => {
-                res.statuses.forEach(tweet => {
-                    let mapResult = searchResultMap.get(tweet.in_reply_to_status_id_str)
-                    if (!mapResult)
-                        searchResultMap.set(tweet.in_reply_to_status_id_str, 1)
-                    else {
-                        mapResult++
-                        searchResultMap.set(tweet.in_reply_to_status_id_str, mapResult)
-                    }
-                })
-
-                newTweets.forEach(tweet => {
-                    let numberOfReplies = searchResultMap.get(tweet.tweetId)
-                    if (numberOfReplies) tweet['replies'] = numberOfReplies
-                    else if (!tweet.hasOwnProperty('replies')) tweet['replies'] = numberOfReplies
-                })
-
-                updatedTweets.forEach(tweet => {
-                    let numberOfReplies = searchResultMap.get(tweet.tweetId)
-                    if (numberOfReplies) tweet['replies'] = numberOfReplies
-                    else if (!tweet.hasOwnProperty('replies')) tweet['replies'] = numberOfReplies
-                })
-
-                return ({
-                    newTweets: newTweets,
-                    db_tweets: updatedTweets
-                })
-            })
-    )
-}
-const saveTweets = (allTweets) => {
-    const db_tweets = allTweets.db_tweets
-    const newTweets = allTweets.newTweets
-
-    let mongooseTweets = newTweets.map(tweet => new Tweet({
-        _id: new mongoose.Types.ObjectId(),
-        user: tweet.user,
-        favorites: tweet.favorites,
-        retweets: tweet.retweets,
-        tweetId: tweet.tweetId,
-        date: tweet.date
-    }))
-    console.log(mongooseTweets)
-
-}
-const compareTweets = (current, id) => {
-
-    let newTweets = []
-    let updatedTweets = []
-    name = current.name
-    console.log(current.tweets)
-    return (
-        Tweet
-            .find()
-            .exec()
-            .then(results => {
-
-                const currentTweetsMap = new Map(current.tweets.map(tweet => [tweet.tweetId, tweet]))
-                const dbTweetMap = new Map(results.map(db_tweet => [db_tweet.tweetId, db_tweet]));
-                current.tweets.forEach(tweet => {
-                    if (!dbTweetMap.get(tweet.tweetId)) {
-                        tweet['user'] = id
-                        newTweets.push(tweet)
-                    }
-
-                })
-
-                console.log(newTweets, 'THAT NEWNEW')
-
-                results.forEach(db_tweet => {
-                    tweetFound = currentTweetsMap.get(db_tweet.tweetId)
-                    if (tweetFound) {
-                        updatedTweets.push({
-                            _id: db_tweet._id,
-                            tweet: tweetFound.favorites,
-                            retweets: tweetFound.retweets,
-                            tweetId: tweetFound.tweetId,
-                            date: tweetFound.date,
-                            name: tweetFound.name
-                        })
-                    }
-                })
-                console.log(updatedTweets, 'UPDATE')
-
-
-
-                return ({
-                    newTweets: newTweets,
-                    updatedTweets: updatedTweets
-                })
-
-
-            })
-    )
-}
 
 const TwitterScedhuler = {
-    //fetch current tweets G
-    //fetch database tweets G
-    // add new tweets to database G
-    // update fields for tweets in database //lodash pick and merge
-    //update replies to comments 
-    // if tweet is 8days old or older, then delete from database
-    // add tweet count, reply count to week object
-
-
-    initiateTwitterScedhuling: () => {
-
-        TwitterHelper.getListOfClients()
-            .then(results =>
-                results.forEach(twitter_client => {
-                    // tweets in db
-                    TwitterFetcher.getUserTimeline(twitter_client.name)
-                        .then(tweets => compareTweets(tweets, twitter_client.userId)
-                            .then(res => updateReplies(res, twitter_client.name))
-                            .then(res => saveTweets(res)) // fetch replies
-                            // TwitterFetcher.getUserTimeline(twitter_client.name)
-                            //     .then(result => console.log(result))
-                            // .then(x => console.log(x)) // get 200 most recent tweets
-                            // .then(getTweets())
-                        )
-
-                    // snapshot stuff
-                    TwitterFetcher.getUserTimeline(twitter_client.name)
-                        .then(tweet)
-                }))
-            .then(() => console.log("hello"))
-            .catch(e => console.log(e))
-    },
+    
     runSnapshot: () => {
 
         var savingPromises = []
@@ -365,95 +264,199 @@ const TwitterScedhuler = {
                 })
             })
     },
+    updateWeeklySnapshots: () => {
+        User.find({})
+            .then(clients => {
+                clients.forEach(client => {
+                    TwitterFetcher.getUserTimeline(client.twitter.name, {created: true})
+                        .then(tl => {
+                            const tweetMap = new Map(tl.tweets.map(tweet => [tweet.tweetId, tweet]));   
+                            //console.log('hereeeeee',tweetMap.get('1109108341333057536'))
+                            // create a similar hashmap with dbTweets with key=date
+                            // pull tweets from twitter, attach replies property to tweets
+                            // loop through tweets and insert into hashmap
+                            TwitterFetcher.getSearchResults(`@${client.twitter.name}`)
+                                .then(result => {
+                                    result.statuses.forEach((status,index,refArray) => {
+                                        if (status['in_reply_to_status_id_str']){
+                                            
+                                            if(tweetMap.get(status['in_reply_to_status_id_str'].toString())){
+                                                var numReplies = tweetMap.get(status['in_reply_to_status_id_str'].toString()).replies++ || 1
+                                                //console.log(status['in_reply_to_status_id_str'])
+                                                tweetMap.set(status['in_reply_to_status_id_str'].toString(), {
+                                                    ...tweetMap.get(status['in_reply_to_status_id_str'].toString()),
+                                                    replies: numReplies
+                                                })
+                                                console.log("set")
+                                            }
+                                        }
+                                    })
+                                    console.log(tweetMap.get('1109108341333057536').replies)
+                                    Tweet.find({name: client.twitter.name})
+                                        .then(tweets => {
+                                            var dbTweetMap = new Map(tweets.map(tweet => [tweet.date, tweet])); 
+                                            var timelineTweetList = Array.from(tweetMap.values())
+                                            var newWeek = null
+                                            timelineTweetList.forEach(tweet => {
+                                                var key = moment(tweet.date).startOf('week').toDate()
+                                                var objectFromDb = dbTweetMap.get(key)
+                                                if (objectFromDb){
+                                                    dbTweetMap.set(key, {
+                                                        ...dbTweetMap.get(key),
+                                                        topThreeFavorites : updateTopEntries(objectFromDb.topThreeFavorites, tweet, 'favorites'),
+                                                        topThreeRetweets: updateTopEntries(objectFromDb.topThreeRetweets, tweet, 'retweets'),
+                                                        topThreeReplies: updateTopEntries(objectFromDb.topThreeReplies, tweet, 'replies'),
+                                                        
+
+                                                    })
+                                                }else{
+                                                    dbTweetMap.set(key, {
+                                                        new: true,
+                                                        topThreeFavorites : [],
+                                                        topThreeRetweets : [],
+                                                        topThreeRepliedToTweets : [],
+                                                        user: tl.userId,
+                                                        date: key
+                                                    })
+                                                }
+                                            })
+                                            
+                                            // save new tweets
+                                            var weekList = Array.from(dbTweetMap.values())
+
+                                            weekList.forEach(weekObject => {
+                                                Object.keys(weekObject).forEach(key =>{
+                                                    if(key == 'topThreeReplies' || key == 'topThreeFavorites' || key == 'topThreeRetweets'){
+                                                        weekObject[key].forEach(tweet => {
+                                                            if(tweetMap.get(tweet.tweetId)){
+                                                                console.log(tweet)
+                                                            }
+                                                            console.log('here')
+                                                        })
+                                                    }
+                                                })
+                                            })
+                                            var tweetPromiseList = []
+
+                                            // Object.keys(weekMap).forEach(k => {
+                                            //     Object.keys(weekMap[k]).forEach(param =>{
+                                            //         if(param == 'topThreeRepliedToTweets' || param == 'topThreeFavorites' || param == 'topThreeRetweets'){
+                                            //         weekMap[k][param] 
+                                            //             .forEach((tweet,index,refArray) =>{
+
+                                            //                 refArray[index] = new Tweet ({
+                                            //                 _id: new mongoose.Types.ObjectId(),
+                                            //                 tweetId: tweet.tweetId,
+                                            //                 name: handle,
+                                            //                 date: k,
+                                            //                 favorites: tweet.favorites,
+                                            //                 replies: tweet.replies,
+                                            //                 retweets: tweet.retweets,
+                                            //                 text: tweet.text
+                                            //                 })
+                                            //                 tweetPromiseList.push(refArray[index].save())
+                                            //                 refArray[index] = refArray[index]._id
+                                            //             })   
+                                            //         }             
+                                            //     })
+                                            // })
+                                        })
+                                    
+                                })
+                                
+                           
+                        })
+                    // update replies
+                        // getusertimeline today - 7days
+                        // pull snap from past week
+                        // updates
+                        // getSearchResults
+                         
+                })
+            })
+    },
     createInitialWeeklySnapshots: (userId,handle) =>{
-        
-        TwitterFetcher.getUserTimeline('DeskNibbles')
+        TwitterFetcher.getUserTimeline(handle)
             .then(tl => {
                 var weekMap = {}
-                const tweetMap = new Map(tl.tweets.map(tweet => [tweet.tweetId, moment(tweet.date).startOf('week').toDate().toString()]));                
-                tl.tweets.forEach(t =>{
-                    //t['replies'] = replyMap.get(t.tweetId)
-                    var key = moment(t.date).startOf('week').toDate();
-                    // if key in map, 
-                    var weekObject = weekMap[key] || {
-                        topThreeFavorites : [],
-                        topThreeRetweets : [],
-                        topThreeRepliedToTweets : [],
-                        user: userId,
-                        date: key
-                    }
+                const tweetMap = new Map(tl.tweets.map(tweet => [tweet.tweetId, moment(tweet.date).startOf('week').toDate().toString()]));
+                attatchRepliesToTweets(tl,handle)
+                    .then(tweets => {
+                  
+                        tweets.forEach(t =>{
+                            if(t.replies) console.log('ALSO HERE', t)
+                            //t['replies'] = replyMap.get(t.tweetId)
+                            var key = moment(t.date).startOf('week').toDate();
+                            // if key in map, 
+                            var weekObject = weekMap[key] || {
+                                topThreeFavorites : [],
+                                topThreeRetweeted : [],
+                                topThreeReplies : [],
+                                user: userId,
+                                date: key
+                            }
+                            weekMap[key] = {
+                                ...weekObject,
+                                topThreeFavorites : updateTopEntries(weekObject.topThreeFavorites, t, 'favorites'),
+                                topThreeRetweeted: updateTopEntries(weekObject.topThreeRetweeted, t, 'retweets'),
+                                topThreeReplies: updateTopEntries(weekObject.topThreeReplies, t, "replies")
+                            }
+                            
+                        
+                        })
 
-                    weekMap[key] = {
-                        ...weekObject,
-                        topThreeFavorites : updateTopEntries(weekObject.topThreeFavorites, t, 'favourites'),
-                        topThreeRetweets: updateTopEntries(weekObject.topThreeRetweets, t, 'retweets')
-                    }
-                    
+                        var tweetPromiseList = []
+                        Object.keys(weekMap).forEach(k => {
+                            Object.keys(weekMap[k]).forEach(param =>{
+                                if(param == 'topThreeReplies' || param == 'topThreeFavorites' || param == 'topThreeRetweeted'){
+                                weekMap[k][param] 
+                                    .forEach((tweet,index,refArray) =>{
+                                        refArray[index] = new Tweet ({
+                                        _id: new mongoose.Types.ObjectId(),
+                                        tweetId: tweet.tweetId,
+                                        name: handle,
+                                        date: k,
+                                        favorites: tweet.favorites,
+                                        replies: tweet.replies,
+                                        retweets: tweet.retweets,
+                                        text: tweet.text
+                                        })
+                                        tweetPromiseList.push(refArray[index].save())
+                                        refArray[index] = refArray[index]._id
+                                    })   
+                                }             
+                            })
+                        })
+                        var weekPromiseList = []
+                        Promise.all(tweetPromiseList).then(res => {
+                            Object.keys(weekMap).forEach(k => {
+                                try{
+                                    var weekSnap = new TwitterWeeklySnapshot({
+                                        ...weekMap[k],
+                                        _id: new mongoose.Types.ObjectId()
+                                    })
+                                }
+                                catch(err){
+                                    console.log('ERROR, err')
+                                }
+                                weekPromiseList.push(weekSnap.save())
+                                
+                                
+                            })
+                            Promise.all(weekPromiseList).then(res => {
+                                // TwitterWeeklySnapshot.find()
+                                // .populate('topThreeRetweeted topThreeFavorites').then((err,db) => console.log(db,err))
+                            })
+                        })
+                        
+
+
+                    })             
                 
-                })
 
                 // LOGGING WEEKMAP
-                var counter = 0
-                var promiseList = []
-                Object.keys(weekMap).forEach(k => {
-                    counter++
-                    Object.keys(weekMap[k]).forEach(param =>{
-                        if(param == 'topThreeRepliedToTweets' || param == 'topThreeFavorites' || param == 'topThreeRetweets'){
-                            
-                        weekMap[k][param] 
-                            .forEach((tweet,index,refArray) =>{
 
-                                console.log(weekMap[k][param].length)
-                                refArray[index] = new Tweet ({
-                                _id: new mongoose.Types.ObjectId(),
-                                tweetId: tweet.tweetId,
-                                name: handle,
-                                date: k,
-                                favorites: tweet.favorites,
-                                replies: tweet.replies,
-                                retweets: tweet.retweets,
-                                text: tweet.text
-                                })
-                                promiseList.push(refArray[index].save())
-                                refArray[index] = refArray[index]._id
-                            })
-                            
-                        }
-                            
-                    })
-                    
-                })
-                var weekPromiseList = []
-                Promise.all(promiseList).then(res => {
-                    Object.keys(weekMap).forEach(k => {
-                        var weekSnap = new TwitterWeeklySnapshot({
-                            ...weekMap[k],
-                            _id: new mongoose.Types.ObjectId()
-                        })
-                        weekPromiseList.push(weekSnap.save())
-                        
-                    })
-                    Promise.all(weekPromiseList).then(res => console.log(res))
-                })
-                // var weekPromiseList = []
-                // Object.keys(weekMap).forEach(k => {
-                //     Object.keys(weekMap[k]).forEach(param =>{
-                //         if(param == 'topThreeRepliedToTweets' || param == 'topThreeFavorites' || param == 'topThreeRetweets'){
-                //             weekMap[k][param].forEach(tweet => {
-                //                 promiseList.push(tweet.save())
-                              
-                //             })
-                //         }
-                //         if(weekMap[k][param]._id){
-                //             promiseList.push(weekMap[k][param].save())
-                //             weekMap[k][param] = weekMap[k][param]._id
-                //         }
-                //     })         
-                // })
-                
-                // Promise.all(weekPromiseList).then(res => console.log(res))
-                    // update the weekly snapshots)
-
+               
             })
         }
 }
