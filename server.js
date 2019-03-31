@@ -91,7 +91,8 @@ shceduler.scheduleJob('30 23 * * * *', () => {
 // ------------------------------
 
 
-
+//twitter_helper.createInitialWeeklySnapshots('5c9a9f455f503a43d1d8b595','DeskNibbles');
+//twitter_helper.updateWeeklySnapshots();
 // ------------------------------
 // CREATE HTTP SERVER
 // ------------------------------

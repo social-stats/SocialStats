@@ -5,6 +5,7 @@ const TwitterHelper = require('../twitter_helper');
 const UserObject = require('../models/user_object');
 const TwitterSnapshot = require('../models/twitter_snapshot');
 const mongoose = require('mongoose');
+const twitter_weekly_schema = require('../models/twitter_weekly_snapshot');
 
 router.get('/init', (req, res, next) => {
     TwitterHelper.runInitialSnapshot(req.query.userId, req.query.twitterHandle)
