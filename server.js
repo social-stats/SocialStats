@@ -7,7 +7,7 @@ const http = require('http')
 const cors = require('cors');
 const shceduler = require('node-schedule');
 const env = process.env.NODE_ENV || "development";
-const port = env === 'production' ? process.env.PORT : 3000;
+const port = env === 'production' ? process.env.PORT : 4000;
 const dotEnv = require('dotenv').config();
 const user = require('./api/user');
 const test = require('./api/test');
@@ -26,17 +26,13 @@ var corsOptions = {
     origin: '*',
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'token', 'content-type'],
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH'],
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    // optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
-app.use(morgan('dev'));
-app.use(cors(corsOptions));
-app.all('*', (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-});
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(morgan('dev'));
+app.use(cors(corsOptions));
 // ------------------------------
 // EXPRESS SET UP END
 // ------------------------------
