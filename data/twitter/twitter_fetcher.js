@@ -3,7 +3,7 @@
 const dotEnv = require('dotenv').config();
 var Twitter = require('twitter-node-client').Twitter;
 const axios = require('axios');
-
+const moment = require('moment')
 const twitter_config = {
 
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
@@ -93,8 +93,26 @@ const TwitterFetcher = {
                 replies: 0
               })
 
-          } else {
-
+          } else if(params.created){
+              if(params.created ){
+                var sevenDays = moment().startOf('date').subtract(7, 'days')
+                if(moment(tweet_object.created_at).isAfter(sevenDays)){
+                  tweets.push({
+                    tw_user: tweet_object.user,
+                    tweet: tweet_object.text,
+                    favorites: tweet_object.favorite_count,
+                    retweets: tweet_object.retweet_count,
+                    tweetId: tweet_object.id_str,
+                    date: tweet_object.created_at,
+                    name: name,
+                    isReply: tweet_object.in_reply_to_status_id !== null,
+                    replies:0
+                  })
+                }
+              }
+            
+          }
+          else{
             tweets.push({
               tw_user: tweet_object.user,
               tweet: tweet_object.text,
@@ -103,14 +121,16 @@ const TwitterFetcher = {
               tweetId: tweet_object.id_str,
               date: tweet_object.created_at,
               name: name,
-              isReply: tweet_object.in_reply_to_status_id !== null
+              isReply: tweet_object.in_reply_to_status_id !== null,
+              replies: 0
             })
           }
         })
 
       res({
         followers: jsonResult[0].user.followers_count,
-        tweets: tweets
+        tweets: tweets,
+        userId: jsonResult[0].user.id_str
       })
 
     }
