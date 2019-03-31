@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 router.post('/', (req, res, next) => {
-    
+    console.log(req.body.username)
     UserObject.find({
         username: req.body.username
     })
@@ -31,6 +31,8 @@ router.post('/', (req, res, next) => {
                             username: req.body.username,
                             password: hash,
                             companyName: req.body.companyName,
+                            companyWebsite: req.body.companyWebsite,
+                            companyIndustry: req.body.companyIndustry,
                             twitter : null,
                             fb: null,
                             instagram: null,
