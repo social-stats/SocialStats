@@ -3,6 +3,9 @@ const router = express.Router();
 const dotEnv = require('dotenv').config();
 var FB = require('fb');
 
+//DELETE THIS FILE
+
+
 var fb = new FB.Facebook({
   appId: process.env.FACEBOOK_APP_ID,
   autoLogAppEvents: true,
