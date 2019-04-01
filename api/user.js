@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 router.post('/', (req, res, next) => {
-    
+    console.log(req.body.username)
     UserObject.find({
         username: req.body.username
     })
@@ -31,6 +31,8 @@ router.post('/', (req, res, next) => {
                             username: req.body.username,
                             password: hash,
                             companyName: req.body.companyName,
+                            companyWebsite: req.body.companyWebsite,
+                            companyIndustry: req.body.companyIndustry,
                             twitter : null,
                             fb: null,
                             instagram: null,
@@ -54,6 +56,46 @@ router.post('/', (req, res, next) => {
             }
         });
 });
+
+router.post('/login', (req, res, next) => {
+    UserObject.find({ username: req.body.username })
+        .exec()
+        .then(user => {
+            if (user.length < 1) {
+                res.status(401).json({
+                    message: 'Auth failed'
+                });
+            } else {
+                bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+                    if (err || !result) {
+                        res.status(401).json({
+                            message: 'Auth failed'
+                        });
+                    } else {
+                        const token = jwt.sign({
+                            username: user[0].username,
+                            userId: user[0]._id
+                        },
+                            "secret",
+                            {
+                                expiresIn: "1h"
+                            }
+                        );
+                        res.status(200).json({
+                            message: 'Login Successful',
+                            token: token,
+                            uid: user[0]._id,
+                            type: user[0].type
+                        });
+                    }
+
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        })
+})
 
 router.patch('/:uid', (req,res,next) => {
     request_body_keys = Object.keys(req.body);
