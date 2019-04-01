@@ -4,10 +4,10 @@ const _ = require('lodash')
 const moment = require('moment')
 
 const mongoose = require('mongoose');
-const User = require('./models/user_object');
-const Tweet = require('./models/tweet');
-const TwitterSnapshot = require('./models/twitter_snapshot')
-const TwitterWeeklySnapshot = require('./models/twitter_weekly_snapshot')
+const User = require('../../models/user');
+const Tweet = require('../../models/tweet');
+const TwitterSnapshot = require('../../models/twitter_snapshot')
+const TwitterWeeklySnapshot = require('../../models/twitter_weekly_snapshot')
 
 const TwitterHelper = {
     getListOfClients: () => {
@@ -24,8 +24,8 @@ const TwitterHelper = {
                         id: client.twitter.id,
                         consumerKey: process.env.TWITTER_CONSUMER_KEY,
                         consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-                        accessToken: client.twitter.access_token,
-                        accessTokenSecret: client.twitter.token_secret,
+                        accessToken: client.twitter.accessToken,
+                        accessTokenSecret: client.twitter.tokenSecret,
                         callBackUrl: process.env.TWITTER_CALLBACK_URL
                     }))
                 return twitter_objects;
