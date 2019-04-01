@@ -5,15 +5,14 @@ const morgan = require('morgan')
 const express = require('express');
 const http = require('http')
 const cors = require('cors');
-const twitterPlaygroundRoutes = require('./api/twitter_playground');
-const igPlaygroundRoutes = require('./igplayground');
 const shceduler = require('node-schedule');
 const env = process.env.NODE_ENV || "development";
-const port = env === 'production' ? process.env.PORT : 3000;
+const port = env === 'production' ? process.env.PORT : 4000;
 const dotEnv = require('dotenv').config();
 const user = require('./api/user');
 const test = require('./api/test');
-const twitter_helper = require('./twitter_helper');
+const twitterEndpoints = require('./api/twitter_endpoints');
+const TwitterHelper = require('./data/twitter/twitter_helper');
 const app = express();
 
 
@@ -27,17 +26,13 @@ var corsOptions = {
     origin: '*',
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'token', 'content-type'],
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH'],
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    // optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
-app.use(morgan('dev'));
-app.use(cors(corsOptions));
-app.all('*', (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-});
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(morgan('dev'));
+app.use(cors(corsOptions));
 // ------------------------------
 // EXPRESS SET UP END
 // ------------------------------
@@ -45,10 +40,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // ------------------------------
 // EXPRESS ROUTING
 // ------------------------------
-app.use('/twitter', twitterPlaygroundRoutes);
-app.use('/ig/', igPlaygroundRoutes); //TODO: delete this later
+app.use('/twitter', twitterEndpoints);
 app.use('/user', user);
-app.use('/test', test);
+if (env === 'development')
+    app.use('/test', test);
 // ------------------------------
 // EXPRESS ROUTING END
 // ------------------------------
@@ -69,30 +64,20 @@ app.get('/tos', (req, res) => {
 // ------------------------------
 // SCHEDULER
 // ------------------------------
-// twitter_helper.initiateTwitterScedhuling();
-// TwitterFetcher.getFollowers();
-// TwitterFetcher.getMentionsTimur fcked loleLine();
-// TwitterFetcher.getRetweetsOfMe();
-// TwitterFetcher.getTrendsNearMe(3369); //ottawa WOEID: 3369 (global trends, use id: 1)
-// TwitterFetcher.getSearchResults('desk nibbles');
-
 shceduler.scheduleJob('30 23 * * * *', () => {
     console.log('Scheduler is running');
-    // socialStatsTwitter.getData(); //socialStatsTwitter == twitter_fetcher.js
-    // socialStatsInstagram.getData();
-    // socialStatsFacebook.getData();
-    console.log('Scheduler ended');
-});
 
-// twitter_helper.runInitialSnapshot('test');
+    Promise.all([TwitterHelper.runSnapshot()]).then(() => {
+        console.log('Snapshot gathering complete');
+    }).catch(e => {
+        console.log('Error while gathering snapshot', e)
+    })
+});
 
 // ------------------------------
 // SCHEDULER end
 // ------------------------------
 
-
-//twitter_helper.createInitialWeeklySnapshots('5c9a9f455f503a43d1d8b595','DeskNibbles');
-//twitter_helper.updateWeeklySnapshots();
 // ------------------------------
 // CREATE HTTP SERVER
 // ------------------------------
