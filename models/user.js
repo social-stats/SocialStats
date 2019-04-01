@@ -3,6 +3,9 @@ const userObjectSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     username: {type: mongoose.Schema.Types.String, required: true},
     password: { type: mongoose.Schema.Types.String, required: true },
+    companyName: { type: mongoose.Schema.Types.String, required: true },
+    companyWebsite: { type: mongoose.Schema.Types.String, required: true },
+    companyIndustry: { type: mongoose.Schema.Types.String, required: true },
     twitter: { 
         accessToken: {type: mongoose.Schema.Types.String, required: false},
         tokenSecret: {type: mongoose.Schema.Types.String, required: false},
