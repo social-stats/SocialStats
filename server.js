@@ -41,10 +41,11 @@ app.use(cors(corsOptions));
 // ------------------------------
 // EXPRESS ROUTING
 // ------------------------------
-app.use('/twitter', twitterEndpoints);
-app.use('/user', user);
-if (env === 'development')
-    app.use('/test', test);
+app.use('/api/twitter', twitterEndpoints);
+app.use('/api/user', user);
+app.use('/api/test', test);
+if (env === 'production')
+    app.use(express.static("SocialStats-UI/social-stats/build"));
 // ------------------------------
 // EXPRESS ROUTING END
 // ------------------------------
@@ -95,16 +96,16 @@ http.createServer(app).listen(port, () => {
 // ------------------------------
 // CREATE FRONTEND SERVER
 // ------------------------------
-if (env === 'production') {
-    uiApp.use(express.static("SocialStats-UI/social-stats/build"));
+// if (env === 'production') {
+//     uiApp.use(express.static("SocialStats-UI/social-stats/build"));
 
-    http.createServer(uiApp).listen(process.env.UI_PORT, () => {
-        console.log('Our UI is running in ' + env + '. ', (new Date()).toString());
-        console.log('running on port is runing on port ', port);
-    }).on('error', (err) => {
-        console.error(JSON.stringify(err));
-    });
-}
+//     http.createServer(uiApp).listen(process.env.UI_PORT, () => {
+//         console.log('Our UI is running in ' + env + '. ', (new Date()).toString());
+//         console.log('running on port is runing on port ', port);
+//     }).on('error', (err) => {
+//         console.error(JSON.stringify(err));
+//     });
+// }
 // ------------------------------
 // CREATE FRONTEND SERVER end
 // ------------------------------
