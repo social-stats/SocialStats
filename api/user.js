@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 router.post('/', (req, res, next) => {
-
+    console.log('proxy')
     User.find({
         username: req.body.username
     })
@@ -57,7 +57,7 @@ router.post('/', (req, res, next) => {
 });
 
 router.post('/login', (req, res, next) => {
-    UserObject.find({ username: req.body.username })
+    User.find({ username: req.body.username })
         .exec()
         .then(user => {
             if (user.length < 1) {
