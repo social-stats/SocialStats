@@ -40,6 +40,7 @@ router.post('/', (req, res, next) => {
                         });
                         user.save()
                             .then(result => {
+                                console.log(result)
                                 res.status(201).json({
                                     success: 'user created',
                                     id: user._id
