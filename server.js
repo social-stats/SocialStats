@@ -42,6 +42,7 @@ app.use(cors(corsOptions));
 // EXPRESS ROUTING
 // ------------------------------
 app.use('/api/twitter', twitterEndpoints);
+app.use('/api/weekly_snap', weeklySnaps);
 app.use('/api/user', user);
 app.use('/api/test', test);
 if (env === 'production')
@@ -69,13 +70,13 @@ app.get('/tos', (req, res) => {
 scheduler.scheduleJob('30 23 * * * *', () => {
     console.log('Scheduler is running');
 
-    Promise.all([TwitterHelper.runSnapshot()]).then(() => {
-        console.log('Snapshot gathering complete');
-    }).catch(e => {
-        console.log('Error while gathering snapshot', e)
-    })
+    // Promise.all([TwitterHelper.runSnapshot()]).then(() => {
+    //     console.log('Snapshot gathering complete');
+    // }).catch(e => {
+    //     console.log('Error while gathering snapshot', e)
+    // })
 });
-
+//TwitterHelper.createInitialWeeklySnapshots("5ca7c47db3712ad2f460b433","DeskNibbles");
 // ------------------------------
 // SCHEDULER end
 // ------------------------------

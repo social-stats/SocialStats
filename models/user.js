@@ -10,6 +10,7 @@ const userObjectSchema = mongoose.Schema({
         accessToken: {type: mongoose.Schema.Types.String, required: false},
         tokenSecret: {type: mongoose.Schema.Types.String, required: false},
         name: {type: mongoose.Schema.Types.String, required: false},
+        id: {type: mongoose.Schema.Types.String, required: false}
     },
     fb: {
         accessToken: {type: mongoose.Schema.Types.String, required: false},
