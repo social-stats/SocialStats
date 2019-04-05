@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
@@ -12,6 +11,7 @@ const port = env === 'production' ? process.env.API_PORT : 4000;
 const user = require('./api/user');
 const test = require('./api/test');
 const twitterEndpoints = require('./api/twitter_endpoints');
+const weeklySnaps = require('./api/weekly_snap_endpoint');
 const TwitterHelper = require('./data/twitter/twitter_helper');
 const app = express();
 const uiApp = express();

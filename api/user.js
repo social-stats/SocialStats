@@ -40,6 +40,7 @@ router.post('/', (req, res, next) => {
                         });
                         user.save()
                             .then(result => {
+                                console.log(result)
                                 res.status(201).json({
                                     success: 'user created',
                                     id: user._id
@@ -156,8 +157,7 @@ router.post('/login', (req, res) => {
                         res.status(200).json({
                             message: 'Login Successful',
                             token: token,
-                            uid: user[0]._id,
-                            type: user[0].type
+                            uid: user[0]._id
                         });
                     }
 
