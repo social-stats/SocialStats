@@ -12,6 +12,7 @@ const user = require('./api/user');
 const test = require('./api/test');
 const twitterEndpoints = require('./api/twitter_endpoints');
 const weeklySnaps = require('./api/weekly_snap_endpoint');
+const snapshotsEndpoints = require('./api/snapshots');
 const TwitterHelper = require('./data/twitter/twitter_helper');
 const app = express();
 const uiApp = express();
@@ -43,7 +44,8 @@ app.use(cors(corsOptions));
 // ------------------------------
 app.use('/api/twitter', twitterEndpoints);
 app.use('/api/user', user);
-app.use('/api/test', test);
+// app.use('/api/test', test);
+app.use('/api/snapshots', snapshotsEndpoints)
 if (env === 'production')
     app.use(express.static("SocialStats-UI/social-stats/build"));
 // ------------------------------
