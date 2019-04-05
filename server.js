@@ -42,9 +42,14 @@ app.use(cors(corsOptions));
 // ------------------------------
 app.use('/api/twitter', twitterEndpoints);
 app.use('/api/user', user);
+<<<<<<< Updated upstream
 app.use('/api/test', test);
 if (env === 'production')
     app.use(express.static("SocialStats-UI/social-stats/build"));
+=======
+if (env === 'development')
+    app.use('/test', test);
+>>>>>>> Stashed changes
 // ------------------------------
 // EXPRESS ROUTING END
 // ------------------------------
