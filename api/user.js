@@ -103,8 +103,9 @@ router.patch('/:uid', (req, res, next) => {
             _id: req.params.uid
         }
 
+        
         const social = ['twitter', 'fb', 'linkedin', 'instagram'];
-        const tokens = ['access_token', 'name', 'token_secret', 'id'];
+        const tokens = ['accessToken', 'name', 'tokenSecret', 'id'];
         const valid_request = request_body_keys.every(key => social.includes(key)
             && Object.keys(req.body[key])
                 .every(innerKey => tokens.includes(innerKey)));

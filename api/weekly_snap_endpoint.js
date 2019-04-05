@@ -8,7 +8,7 @@ const TwitterSnapshot = require('../models/twitter_snapshot');
 const mongoose = require('mongoose');
 
 router.get('/', (req, res, next) => {
-    const userId = req.query.userId;
+    const userId = req.query.userid;
     console.log(userId,'n')
     WeeklySnapshot.find({user:userId})
         .then(dbResults => {
