@@ -42,8 +42,8 @@ const attatchRepliesToTweets = (timeLineTweets, name) => {
                 result.statuses.forEach((status, index, refArray) => {
                     if (status['in_reply_to_status_id_str']) {
 
-                        if (tweetMap.get(status['in_reply_to_status_id_str'].toString())) {
-                            var numReplies = tweetMap.get(status['in_reply_to_status_id_str'].toString()).replies++
+                        if (tweetMap.get(status['in_reply_to_status_id_str'])) {
+                            var numReplies = tweetMap.get(status['in_reply_to_status_id_str'].toString()).replies + 1
                             tweetMap.set(status['in_reply_to_status_id_str'].toString(), {
                                 ...tweetMap.get(status['in_reply_to_status_id_str'].toString()),
                                 replies: numReplies

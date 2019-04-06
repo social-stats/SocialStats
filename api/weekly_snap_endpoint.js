@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 router.get('/', (req, res, next) => {
     const userId = req.query.userid;
     console.log(userId,'n')
-    WeeklySnapshot.find({user:userId})
+    WeeklySnapshot.find({user:userId}).populate('topThreeReplies topThreeFavorites topThreeRetweeted')
         .then(dbResults => {
             res.status(200).json({
                 dbResults
