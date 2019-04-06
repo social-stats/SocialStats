@@ -11,11 +11,27 @@ router.get('/', (req, res, next) => {
     const userId = req.query.userid;
     console.log(userId,'n')
     WeeklySnapshot.find({user:userId}).populate('topThreeReplies topThreeFavorites topThreeRetweeted')
-        .then(dbResults => {
+        .then(weeklySnaps => {
+            console.log(weeklySnaps)
             res.status(200).json({
-                dbResults
+                weeklySnaps
             })
         })
 });
+
+
+
+router.post('/init', (req, res, next) => {
+    const uid = req.query.uid;
+    const tname = req.query.tname;
+    TwitterHelper.createInitialWeeklySnapshots(uid,tname)
+        .then(results => {
+            console.log(results)
+            res.status(201).json({
+                results
+            })
+        })
+});
+
 
 module.exports = router;

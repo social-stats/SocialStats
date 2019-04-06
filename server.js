@@ -78,6 +78,8 @@ scheduler.scheduleJob('30 23 * * * *', () => {
     //     console.log('Error while gathering snapshot', e)
     // })
 });
+// TwitterHelper.createInitialWeeklySnapshots("5ca8b0c8ab9cf1e37a5f1b4c","ChatimeCanada")
+//     .then(res => console.log(res, 'res here'));
 //TwitterHelper.createInitialWeeklySnapshots("5ca7c47db3712ad2f460b433","DeskNibbles");
 // ------------------------------
 // SCHEDULER end
