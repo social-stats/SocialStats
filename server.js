@@ -45,7 +45,7 @@ app.use(cors(corsOptions));
 app.use('/api/twitter', twitterEndpoints);
 app.use('/api/weekly_snap', weeklySnaps);
 app.use('/api/user', user);
-// app.use('/api/test', test);
+app.use('/api/test', test);
 app.use('/api/snapshots', snapshotsEndpoints)
 if (env === 'production')
     app.use(express.static("SocialStats-UI/social-stats/build"));

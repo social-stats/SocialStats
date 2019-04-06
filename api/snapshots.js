@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 
 router.get('/', (req, res, next) => {
     const uid = req.query.uid;
-    console.log('req.query', req.query)
     TwitterSnapshot.find({ user: uid })
         .exec((err, docs) => {
             if (err)
