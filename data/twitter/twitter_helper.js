@@ -235,6 +235,7 @@ const TwitterScedhuler = {
     },
     // runIntialSnapshot is a promise
     runInitialSnapshot: (userId, twitterHandle) => {
+        var saveArr = [];
         twitterHandle = twitterHandle || 'desknibbles'
         return TwitterFetcher.getUserTimeline(twitterHandle)
             .then(tl => {
@@ -274,8 +275,11 @@ const TwitterScedhuler = {
                         retweets: snapshots[date].retweets,
                         firstTweetId: snapshots[date].firstTweetId
                     })
-                    return newTwitterSnapshot.save();
+                    saveArr.push(newTwitterSnapshot.save())
                 })
+
+                return Promise.all(saveArr)
+
             })
     },
     updateWeeklySnapshots: () => {

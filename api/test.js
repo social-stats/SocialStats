@@ -37,4 +37,8 @@ router.get('/snapshots', (req, res, next) => {
     })
 });
 
+router.get('/users', (req, res, next) => {
+    UserObject.find({}).exec((err, users) => {res.send(users)})
+})
+
 module.exports = router;
