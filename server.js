@@ -12,6 +12,7 @@ const user = require('./api/user');
 const test = require('./api/test');
 const twitterEndpoints = require('./api/twitter_endpoints');
 const weeklySnaps = require('./api/weekly_snap_endpoint');
+const snapshotsEndpoints = require('./api/snapshots');
 const TwitterHelper = require('./data/twitter/twitter_helper');
 const app = express();
 const uiApp = express();
@@ -42,8 +43,10 @@ app.use(cors(corsOptions));
 // EXPRESS ROUTING
 // ------------------------------
 app.use('/api/twitter', twitterEndpoints);
+app.use('/api/weekly_snap', weeklySnaps);
 app.use('/api/user', user);
 app.use('/api/test', test);
+app.use('/api/snapshots', snapshotsEndpoints)
 if (env === 'production')
     app.use(express.static("SocialStats-UI/social-stats/build"));
 // ------------------------------
@@ -69,13 +72,15 @@ app.get('/tos', (req, res) => {
 scheduler.scheduleJob('30 23 * * * *', () => {
     console.log('Scheduler is running');
 
-    Promise.all([TwitterHelper.runSnapshot()]).then(() => {
-        console.log('Snapshot gathering complete');
-    }).catch(e => {
-        console.log('Error while gathering snapshot', e)
-    })
+    // Promise.all([TwitterHelper.runSnapshot()]).then(() => {
+    //     console.log('Snapshot gathering complete');
+    // }).catch(e => {
+    //     console.log('Error while gathering snapshot', e)
+    // })
 });
-
+// TwitterHelper.createInitialWeeklySnapshots("5ca8b0c8ab9cf1e37a5f1b4c","ChatimeCanada")
+//     .then(res => console.log(res, 'res here'));
+//TwitterHelper.createInitialWeeklySnapshots("5ca7c47db3712ad2f460b433","DeskNibbles");
 // ------------------------------
 // SCHEDULER end
 // ------------------------------

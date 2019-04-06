@@ -33,7 +33,7 @@ router.post('/', (req, res, next) => {
                             companyName: req.body.companyName,
                             companyWebsite: req.body.companyWebsite,
                             companyIndustry: req.body.companyIndustry,
-                            twitter : null,
+                            twitter: null,
                             fb: null,
                             instagram: null,
                             linkedin: null
@@ -96,31 +96,29 @@ router.post('/login', (req, res, next) => {
         })
 })
 
-router.patch('/:uid', (req,res,next) => {
+router.patch('/:uid', (req, res, next) => {
     request_body_keys = Object.keys(req.body);
     if (request_body_keys.length < 4) {
         const where = {
             _id: req.params.uid
         }
 
+        
         const social = ['twitter', 'fb', 'linkedin', 'instagram'];
-        const tokens = ['access_token', 'name', 'token_secret', 'id'];
+        const tokens = ['accessToken', 'name', 'tokenSecret', 'id'];
         const valid_request = request_body_keys.every(key => social.includes(key)
             && Object.keys(req.body[key])
                 .every(innerKey => tokens.includes(innerKey)));
         if (valid_request) {
             User.updateOne({ _id: req.params.uid }, { $set: req.body })
-                .exec()
-                .then(result => {
-                    res.status(201).json(req.body);
+                .exec((err, results) => {
+                    if (err)
+                        return res.status(500).json({
+                            error: err
+                        });
+                    console.log('req.body', req.body);  
+                    return res.status(201).json(req.body);
                 })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        error: err
-                    });
-
-                });
         } else {
             res.status(401).json({
                 error: "invalid requst"

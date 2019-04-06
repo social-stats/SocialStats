@@ -42,8 +42,8 @@ const attatchRepliesToTweets = (timeLineTweets, name) => {
                 result.statuses.forEach((status, index, refArray) => {
                     if (status['in_reply_to_status_id_str']) {
 
-                        if (tweetMap.get(status['in_reply_to_status_id_str'].toString())) {
-                            var numReplies = tweetMap.get(status['in_reply_to_status_id_str'].toString()).replies++
+                        if (tweetMap.get(status['in_reply_to_status_id_str'])) {
+                            var numReplies = tweetMap.get(status['in_reply_to_status_id_str'].toString()).replies + 1
                             tweetMap.set(status['in_reply_to_status_id_str'].toString(), {
                                 ...tweetMap.get(status['in_reply_to_status_id_str'].toString()),
                                 replies: numReplies
@@ -235,6 +235,7 @@ const TwitterScedhuler = {
     },
     // runIntialSnapshot is a promise
     runInitialSnapshot: (userId, twitterHandle) => {
+        var saveArr = [];
         twitterHandle = twitterHandle || 'desknibbles'
         return TwitterFetcher.getUserTimeline(twitterHandle)
             .then(tl => {
@@ -274,8 +275,11 @@ const TwitterScedhuler = {
                         retweets: snapshots[date].retweets,
                         firstTweetId: snapshots[date].firstTweetId
                     })
-                    return newTwitterSnapshot.save();
+                    saveArr.push(newTwitterSnapshot.save())
                 })
+
+                return Promise.all(saveArr)
+
             })
     },
     updateWeeklySnapshots: () => {
@@ -405,9 +409,10 @@ const TwitterScedhuler = {
                 // getSearchResults
 
             })
+            .then(() => console.log('x'))
     },
     createInitialWeeklySnapshots: (userId, handle) => {
-        TwitterFetcher.getUserTimeline(handle)
+        return new Promise ( (resolve, reject) => {TwitterFetcher.getUserTimeline(handle)
             .then(tl => {
                 var weekMap = {}
                 const tweetMap = new Map(tl.tweets.map(tweet => [tweet.tweetId, moment(tweet.date).startOf('week').toDate().toString()]));
@@ -415,7 +420,6 @@ const TwitterScedhuler = {
                     .then(tweets => {
 
                         tweets.forEach(t => {
-                            if (t.replies) console.log('ALSO HERE', t)
                             //t['replies'] = replyMap.get(t.tweetId)
                             var key = moment(t.date).startOf('week').toDate();
                             // if key in map, 
@@ -461,24 +465,20 @@ const TwitterScedhuler = {
                         var weekPromiseList = []
                         Promise.all(tweetPromiseList).then(res => {
                             Object.keys(weekMap).forEach(k => {
-                                try {
+
                                     var weekSnap = new TwitterWeeklySnapshot({
                                         ...weekMap[k],
                                         _id: new mongoose.Types.ObjectId()
                                     })
-                                } catch (err) {
-                                    console.log('ERROR, err')
-                                }
+                                
                                 weekPromiseList.push(weekSnap.save())
 
 
                             })
-                            Promise.all(weekPromiseList).then(res => {
-                                // TwitterWeeklySnapshot.find()
-                                // .populate('topThreeRetweeted topThreeFavorites').then((err,db) => console.log(db,err))
-                            })
+                            Promise.all(weekPromiseList).then(resolve(weekMap));
                         })
 
+                        
 
 
                     })
@@ -488,7 +488,7 @@ const TwitterScedhuler = {
 
 
             })
-    }
+    })}
 }
 
 module.exports = TwitterScedhuler;
